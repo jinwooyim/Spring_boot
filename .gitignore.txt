@@ -1,0 +1,31 @@
+# === Eclipse settings ===
+.metadata/
+*.log
+*.tmp
+*.bak
+*.swp
+.settings/
+.project
+.classpath
+
+# === Gradle ===
+.gradle/
+build/
+out/
+
+# === OS generated files ===
+.DS_Store
+Thumbs.db
+
+# === IntelliJ IDEA (optional) ===
+.idea/
+*.iml
+
+# === Java ===
+*.class
+
+# === Logs ===
+*.log
+
+# === Misc ===
+!gradle/wrapper/gradle-wrapper.jar
