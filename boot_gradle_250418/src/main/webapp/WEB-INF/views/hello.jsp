@@ -7,10 +7,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script type="text/javascript" src="${contextPath}/js/scriptTest.js"></script>
 </head>
 <body>
     안녕하세요<br>
-    <h2>message</h2>
+    <h2>${message}</h2>
     <img src="${contextPath}/image/duke.png" width="200" height="200">
+    <input type="button" name="test" value="테스트" onclick="test()">
 </body>
 </html>
