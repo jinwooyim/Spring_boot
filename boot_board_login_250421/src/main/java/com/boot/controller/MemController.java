@@ -3,6 +3,9 @@ package com.boot.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,9 +38,11 @@ public class MemController {
 	}
 
 	@RequestMapping("/login_yn")
-	public String loginYn(@RequestParam HashMap<String, String> param) {
+	public String loginYn(@RequestParam HashMap<String, String> param, HttpServletRequest request) {
 		log.info("@# loginYn()");
 
+		HttpSession session = request.getSession();
+		MemDTO dto = new MemDTO(param.get("mem_uid"), param.get("mem_pwd"), param.get("mem_name"));
 		ArrayList<MemDTO> dtos = service.loginYn(param);
 
 		if (dtos.isEmpty()) {
@@ -45,8 +50,12 @@ public class MemController {
 		} else {
 //			if (request.getParameter("mem_pwd").equals(dtos.get(0).getMem_pwd())) {
 			if (param.get("mem_pwd").equals(dtos.get(0).getMem_pwd())) {
-
-				return "redirect:login_ok";
+//				로그인 성공시 사용자정보를 세션에 저장
+				session.setAttribute("user", dto);
+				MemDTO mdto = (MemDTO) session.getAttribute("user");
+				log.info("@# mdto =>" + mdto);
+				session.setMaxInactiveInterval(3600);
+				return "redirect:list";
 			}
 			return "redirect:login";
 		}
