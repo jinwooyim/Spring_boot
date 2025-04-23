@@ -1,0 +1,10 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boot.dao.BoardAttachDAO">
+    <insert id="insertFile">
+    	insert into board_attach(uuid, uploadPath, fileName, image) values(#{uuid},#{uploadPath},#{fileName},#{image})
+    </insert>
+</mapper>
+
