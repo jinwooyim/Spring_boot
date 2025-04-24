@@ -6,6 +6,12 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
+<style>
+		.div_page ul{
+			display: flex;
+			list-style: none;
+		}
+</style>
 <body>
 	<table width="500" border="1">
 		<tr>
@@ -39,12 +45,43 @@
 	</table>
 
 	<h3>${pageMaker}</h3>
-	<div>
+	<div class="div_page">
 		<ul>
+			<c:if test="${pageMaker.prev}">
+				<li class="paginate_button">
+					<a href="${pageMaker.startPage -1}">
+						[Previous]
+					</a>
+				</li>
+			</c:if>
+			
 			<c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
-				<li>[${num}]</li>
+				<!-- <li>[${num}]</li> -->
+				<!-- <li ${pageMaker.cri.pageNum == num ? "style='color: red;'":""}>[${num}]</li> -->
+				<li class="paginate_button" ${pageMaker.cri.pageNum == num ? "style='color: red;'":""}>
+					<a href="${num}">
+						[${num}]
+					</a>
+				</li>
 			</c:forEach>
+
+			<c:if test="${pageMaker.next}">
+				<li class="paginate_button">
+					<a href="${pageMaker.endPage +1}">
+						[Next]
+					</a>
+				</li>
+			</c:if>
 		</ul>
 	</div>
 </body>
 </html>
+<script src="${pageContext.request.contextPath}/js/jquery.js"></script>
+<script>
+	// 페이지번호 처리
+	$(".paginate_button a").on("click", function (e) {
+		e.preventDefault();
+		console.log("click~!!!");
+		console.log("@# href =>"+$(this).attr("href"));
+	}); // end of paginate_button click
+</script>
