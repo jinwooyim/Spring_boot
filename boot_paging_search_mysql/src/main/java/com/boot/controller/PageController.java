@@ -23,7 +23,7 @@ public class PageController {
 		log.info("@# cri" + cri);
 
 		model.addAttribute("list", service.listWithPaging(cri));
-		model.addAttribute("pageMaker", new PageDTO(service.totalList(), cri));
+		model.addAttribute("pageMaker", new PageDTO(service.totalList(cri), cri));
 
 		return "list";
 	}

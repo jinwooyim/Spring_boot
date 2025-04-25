@@ -31,10 +31,10 @@ public class PageServiceImpl implements PageService {
 	}
 
 	@Override
-	public int totalList() {
+	public int totalList(Criteria cri) {
 		log.info("@# PageServiceImpl totalList");
 		PageDAO dao = sqlSession.getMapper(PageDAO.class);
-		int totalList = dao.totalList();
+		int totalList = dao.totalList(cri);
 		return totalList;
 	}
 

@@ -8,5 +8,5 @@ import com.boot.dto.Criteria;
 public interface PageService {
 	public ArrayList<BoardDTO> listWithPaging(Criteria cri);
 
-	public int totalList();
+	public int totalList(Criteria cri);
 }
