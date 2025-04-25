@@ -30,4 +30,12 @@ public class PageServiceImpl implements PageService {
 		return list;
 	}
 
+	@Override
+	public int totalList() {
+		log.info("@# PageServiceImpl totalList");
+		PageDAO dao = sqlSession.getMapper(PageDAO.class);
+		int totalList = dao.totalList();
+		return totalList;
+	}
+
 }

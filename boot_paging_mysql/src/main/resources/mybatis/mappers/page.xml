@@ -17,6 +17,9 @@
 	where rownum > ((#{pageNum}-1)*#{amount})
  	]]>
     </select>
+	<select id="totalList" resultType="int">
+	    select count(*) from tbl_board
+	</select>
 </mapper>
 
 

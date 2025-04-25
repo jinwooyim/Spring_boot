@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.boot.dto.BoardAttachDTO;
 import com.boot.dto.BoardDTO;
@@ -68,9 +69,13 @@ public class BoardController {
 	@RequestMapping("/content_view")
 	public String content_view(@RequestParam HashMap<String, String> param, Model model) {
 		log.info("@# content_view()");
+		log.info("@# param" + param);
 
 		BoardDTO dto = service.contentView(param);
 		model.addAttribute("content_view", dto);
+
+//		content_view.jsp 에서 pageMaker 를 가지고 페이징 처리
+		model.addAttribute("pageMaker", param);
 
 		// 해당 게시글에 작성된 댓글 리스트를 가져옴
 		ArrayList<CommentDTO> commentList = commentService.findAll(param);
@@ -80,22 +85,32 @@ public class BoardController {
 	}
 
 	@RequestMapping("/modify")
-	public String modify(@RequestParam HashMap<String, String> param) {
+	public String modify(@RequestParam HashMap<String, String> param, RedirectAttributes rttr) {
 		log.info("@# modify()");
+		log.info("@# param" + param);
 
 		service.modify(param);
+
+//		페이지 이동시 뒤에 페이지번호, 글 갯수 추가 
+		rttr.addAttribute("pageNum", param.get("pageNum"));
+		rttr.addAttribute("amount", param.get("amount"));
+		rttr.addAttribute("boardNo", param.get("boardNo"));
 
 		return "redirect:list";
 	}
 
 	@RequestMapping("/delete")
-	public String delete(@RequestParam HashMap<String, String> param) {
+	public String delete(@RequestParam HashMap<String, String> param, RedirectAttributes rttr) {
 		log.info("@# delete()");
 		log.info("@# param=>" + param);
 		log.info("@# boardNo=>" + param.get("boardNo"));
 
 		List<BoardAttachDTO> fileList = uploadService.getFileList(Integer.parseInt(param.get("boardNo")));
 		log.info("@# fileList=>" + fileList);
+
+		rttr.addAttribute("pageNum", param.get("pageNum"));
+		rttr.addAttribute("amount", param.get("amount"));
+		rttr.addAttribute("boardNo", param.get("boardNo"));
 
 //		게시글 삭제, 댓글 삭제
 		service.delete(param);
