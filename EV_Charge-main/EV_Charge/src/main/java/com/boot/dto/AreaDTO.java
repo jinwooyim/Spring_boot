@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AreaDTO {
-	private int area_no;
-	private String area_province;
-	private String area_city;
+	private String area_ctpy_nm; // 시/도
+	private String area_sgg_nm; // 시/군/구
+	private String area_emd_nm; // 읍/면/동
 }
