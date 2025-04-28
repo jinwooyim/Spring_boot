@@ -4,17 +4,21 @@
 
 <mapper namespace="com.boot.dao.MemberDAO">
 
+	<!-- 회원 가입 -->
     <insert id="registUser">
 		insert into EV_user (user_id, user_password, user_name, user_email, user_province, user_city) 
 		values
 		(#{user_id}, #{user_password}, #{user_name}, #{user_email}, #{user_province}, #{user_city})
     </insert>
     
+    <!-- 아이디 중복 체크 -->
     <select id="user_id_check">
     	select count(*) from EV_user where user_id=#{user_id}
     </select>
 
+    <!-- 로그인 -->
     <select id="login">
     	select count(*) from EV_user where user_id=#{user_id} and user_password=#{user_password}
     </select>
+    
 </mapper>

@@ -43,6 +43,13 @@ public class BoardController {
 		return "list";
 	}
 
+//	@RequestMapping("/list")
+	@RequestMapping("/google")
+	public String google(Model model) {
+
+		return "google_map";
+	}
+
 	@RequestMapping("/write")
 //	public String write(@RequestParam HashMap<String, String> param) {
 	public String write(BoardDTO boardDTO) {

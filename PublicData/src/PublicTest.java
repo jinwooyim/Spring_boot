@@ -45,6 +45,13 @@ public class PublicTest {
 //				@# kind =>react
 //				@# kind =>vue
 				System.out.println("@# kind =>" + kind);
+
+				Node tNode = ((Element) bNode).getElementsByTagName("title").item(i);
+				Node aNode = ((Element) bNode).getElementsByTagName("author").item(i);
+				Node pNode = ((Element) bNode).getElementsByTagName("price").item(i);
+				System.out.println("@# tNode =>" + tNode);
+				System.out.println("@# aNode =>" + aNode);
+				System.out.println("@# pNode =>" + pNode);
 			}
 
 			System.out.println();
