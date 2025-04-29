@@ -11,10 +11,56 @@
 	</head>
 
 	<body>
+		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=109dd4a6fbdf108d896544146388b47e"></script>
+		
+		<!-- 지도 표시 -->
 		<div id="map" style="width:100%;height:700px;"></div>
+		
+		<!-- 추후에 사용자 세션 받아서 blind 및 display 처리 요망. -->
+		<!-- 사용자 세션 받으면 center_lat과 center_lng는 사용자 가입시 설정되는 area 값으로 지정 -->
+		<div id="sidebar">
+			<h1>지역 선택</h1>
+			<a href="login"><button>로그인</button></a>
+			<a href="registe"><button>회원가입</button></a>
 
-		<script type="text/javascript"
-			src="//dapi.kakao.com/v2/maps/sdk.js?appkey=109dd4a6fbdf108d896544146388b47e"></script>
+			<form id="address-form">
+				<label for="area_ctpy_nm">시/도</label>
+				<select id="area_ctpy_nm" name="area_ctpy_nm" onchange="updatearea_sgg_nm()">
+					<option value="">선택하세요</option>
+					<option value="서울특별시">서울특별시</option>
+					<option value="부산광역시">부산광역시</option>
+					<option value="대구광역시">대구광역시</option>
+					<option value="인천광역시">인천광역시</option>
+					<option value="광주광역시">광주광역시</option>
+					<option value="대전광역시">대전광역시</option>
+					<option value="울산광역시">울산광역시</option>
+					<option value="경기도">경기도</option>
+					<option value="강원도">강원도</option>
+					<option value="충청북도">충청북도</option>
+					<option value="충청남도">충청남도</option>
+					<option value="전라북도">전라북도</option>
+					<option value="전라남도">전라남도</option>
+					<option value="경상북도">경상북도</option>
+					<option value="경상남도">경상남도</option>
+					<option value="제주도">제주도</option>
+				</select>
+
+				<label for="area_sgg_nm">군/구</label>
+				<select id="area_sgg_nm" name="area_sgg_nm" onchange="updatearea_emd_nm()">
+					<option value="">선택하세요</option>
+					<!-- 군/구 옵션이 여기에 동적으로 추가됩니다 -->
+				</select>
+
+				<label for="area_emd_nm">읍/면/동</label>
+				<select id="area_emd_nm" name="area_emd_nm">
+					<option value="">선택하세요</option>
+					<!-- 읍/면/동 옵션이 여기에 동적으로 추가됩니다 -->
+				</select>
+
+				<input type="button" value="검색하기">
+			</form>
+		</div>
+
 		<script type="text/javascript">
 			var mapContainer = document.getElementById('map'); // 지도를 표시할 div  
 			var markers = [];
@@ -39,45 +85,6 @@
 				console.log('현재 중심 좌표:', center_lat, center_lng);
 			});
 		</script>
-		<h1>지역 선택</h1>
-
-		<form id="address-form">
-			<label for="area_ctpy_nm">시/도</label>
-			<select id="area_ctpy_nm" name="area_ctpy_nm" onchange="updatearea_sgg_nm()">
-				<option value="">선택하세요</option>
-				<option value="서울특별시">서울특별시</option>
-				<option value="부산광역시">부산광역시</option>
-				<option value="대구광역시">대구광역시</option>
-				<option value="인천광역시">인천광역시</option>
-				<option value="광주광역시">광주광역시</option>
-				<option value="대전광역시">대전광역시</option>
-				<option value="울산광역시">울산광역시</option>
-				<option value="경기도">경기도</option>
-				<option value="강원도">강원도</option>
-				<option value="충청북도">충청북도</option>
-				<option value="충청남도">충청남도</option>
-				<option value="전라북도">전라북도</option>
-				<option value="전라남도">전라남도</option>
-				<option value="경상북도">경상북도</option>
-				<option value="경상남도">경상남도</option>
-				<option value="제주도">제주도</option>
-			</select>
-
-			<label for="area_sgg_nm">군/구</label>
-			<select id="area_sgg_nm" name="area_sgg_nm" onchange="updatearea_emd_nm()">
-				<option value="">선택하세요</option>
-				<!-- 군/구 옵션이 여기에 동적으로 추가됩니다 -->
-			</select>
-
-			<label for="area_emd_nm">읍/면/동</label>
-			<select id="area_emd_nm" name="area_emd_nm">
-				<option value="">선택하세요</option>
-				<!-- 읍/면/동 옵션이 여기에 동적으로 추가됩니다 -->
-			</select>
-
-			<input type="button" value="검색하기">
-		</form>
-
 		<script>
 			// 군/구 옵션 업데이트 함수
 			function updatearea_sgg_nm() {
@@ -150,7 +157,7 @@
 								console.log("새로운 중심 좌표:", center_lat, center_lng);
 
 								//주변 충전소를 찾기위한 데이터 전송
-								fetch('/findStationsNear', {
+								fetch('/updateMapCoordinates/findStationsNear', {
 									method: 'POST',
 									headers: {
 										'Content-Type': 'application/json'
@@ -209,8 +216,6 @@
 				markers = [];
 			}
 		</script>
-		<a href="login"><button>로그인</button></a>
-		<a href="registe"><button>회원가입</button></a>
 	</body>
 
 	</html>

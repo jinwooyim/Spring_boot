@@ -23,7 +23,7 @@ public class MemberController {
 	private MemberService memberService;
 
 	@Autowired
-	private AreaService ereaService;
+	private AreaService areaService;
 
 	// main.jsp
 	@RequestMapping("/main")
@@ -37,8 +37,8 @@ public class MemberController {
 	public String registe(Model model) {
 		log.info("registe");
 
-		ArrayList<AreaDTO> erea_province_list = ereaService.select_area_province();
-		model.addAttribute("erea_province_list", erea_province_list);
+		ArrayList<AreaDTO> area_province_list = areaService.select_area_province();
+		model.addAttribute("area_province_list", area_province_list);
 
 		return "registe";
 	}
@@ -78,7 +78,7 @@ public class MemberController {
 	public ArrayList<AreaDTO> province_of_city(@RequestParam("user_province") String param) {
 		log.info("province_of_city");
 		log.info("@# param =>" + param);
-		ArrayList<AreaDTO> cites = ereaService.select_area_city(param);
+		ArrayList<AreaDTO> cites = areaService.select_area_city(param);
 		log.info("" + cites);
 
 		return cites;
