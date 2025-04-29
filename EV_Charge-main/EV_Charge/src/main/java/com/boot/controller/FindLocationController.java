@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.boot.dto.AreaDTO;
+import com.boot.dto.MemberDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +42,7 @@ public class FindLocationController {
 	private String kakaoApiKey;
 
 	@PostMapping("/updateMapCoordinates")
-	public String updateMapCoordinates(@RequestBody AreaDTO address) {
+	public String updateMapCoordinates(@RequestBody MemberDTO address) {
 		String[] coordinates = new String[2]; // [0] -> latitude, [1] -> longitude
 
 		try {
@@ -112,7 +112,7 @@ public class FindLocationController {
 	}
 
 	// 읍면동 주소값이 있는지 없는지 판별하는 메소드
-	private String buildAddress(AreaDTO address, boolean includeEmd) {
+	private String buildAddress(MemberDTO address, boolean includeEmd) {
 		String addr = address.getArea_ctpy_nm() + " " + address.getArea_sgg_nm();
 		if (includeEmd && address.getArea_emd_nm() != null && !address.getArea_emd_nm().isEmpty()) {
 			addr += " " + address.getArea_emd_nm();

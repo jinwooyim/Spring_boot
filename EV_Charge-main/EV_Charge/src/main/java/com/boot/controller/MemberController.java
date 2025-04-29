@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.boot.dto.AreaDTO;
-import com.boot.service.AreaService;
+import com.boot.dto.MemberDTO;
 import com.boot.service.MemberService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MemberController {
 	@Autowired
-	private MemberService memberService;
-
-	@Autowired
-	private AreaService areaService;
+	private MemberService areaService;
 
 	// main.jsp
 	@RequestMapping("/main")
@@ -37,7 +34,7 @@ public class MemberController {
 	public String registe(Model model) {
 		log.info("registe");
 
-		ArrayList<AreaDTO> area_province_list = areaService.select_area_province();
+		ArrayList<MemberDTO> area_province_list = areaService.select_area_province();
 		model.addAttribute("area_province_list", area_province_list);
 
 		return "registe";
