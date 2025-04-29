@@ -1,9 +1,12 @@
 package com.boot.controller;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +22,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.boot.dto.AreaDTO;
 
@@ -31,13 +36,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/updateMapCoordinates")
 public class FindLocationController {
 
 	@Value("${kakao.api.key}") // API Key를 application.properties에서 주입
 	private String kakaoApiKey;
 
-	@PostMapping
+	@PostMapping("/updateMapCoordinates")
 	public String updateMapCoordinates(@RequestBody AreaDTO address) {
 		String[] coordinates = new String[2]; // [0] -> latitude, [1] -> longitude
 
@@ -117,69 +121,75 @@ public class FindLocationController {
 	}
 
 	// 센터점 주변 충전소 찾기
-	@PostMapping("/findStationsNear")
+	@RequestMapping("/findStationsNear")
 	@ResponseBody
-	public List<Map<String, Object>> findStationsNear(@RequestBody Map<String, Object> body) {
+	public List<Map<String, Object>> findStationsNear(@RequestParam String area_ctpy_nm,
+			@RequestParam String area_sgg_nm) {
 
-		double centerLat = Double.parseDouble(body.get("center_lat").toString());
-		double centerLng = Double.parseDouble(body.get("center_lng").toString());
+		log.info("@# area_ctpy_nm =>" + area_ctpy_nm);
+		log.info("@# area_sgg_nm =>" + area_sgg_nm);
 
-		log.info("요청 받은 중심 좌표: {}, {}", centerLat, centerLng);
-
-		List<Map<String, Object>> stations = new ArrayList<>();
+		// 저장된 파일 읽어서 결과 찾기
+		List<Map<String, Object>> station_list = new ArrayList<>();
 
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder parser = dbf.newDocumentBuilder();
 
-			String url = "http://apis.data.go.kr/B552584/EvCharger/getChargerInfo?serviceKey=ha6Vs0w2TW5hmQMnGjVefZDfIMjkFiXLXhNYfw0kPcJd470rlZfa95pVgwgLfQYMXmMVe0%2BjwHptLmAGdhXaCw%3D%3D&numOfRows=1000&dataType=XML";
+			Document xmlDoc = null; // 참조 변수
+			String url = "C:\\Users\\user\\test.xml";
+			xmlDoc = parser.parse(url);
 
-			for (int i = 1; i <= 426; i++) {
-				String newUrl = url + "&pageNo=" + i;
-				Document xmlDoc = parser.parse(new URL(newUrl).openStream());
-				Element root = xmlDoc.getDocumentElement();
+			Element root = xmlDoc.getDocumentElement();
 
-				for (int j = 0; j < 1000; j++) {
-					Node item_node = root.getElementsByTagName("item").item(j);
-					if (item_node == null) {
-						continue;
-					}
+//	         Node item_node = root.getElementsByTagName("item").item(0);
 
-					double lat = Double
-							.parseDouble(((Element) item_node).getElementsByTagName("lat").item(0).getTextContent());
-					double lng = Double
-							.parseDouble(((Element) item_node).getElementsByTagName("lng").item(0).getTextContent());
+			int length = root.getElementsByTagName("item").getLength();
 
-					// 중심 좌표와 가까운 충전소만 필터링 (예시로 반경 2km)
-					double distance = getDistance(centerLat, centerLng, lat, lng);
-					if (distance <= 2.0) {
-						Map<String, Object> station = new HashMap<>();
-						station.put("latitude", lat);
-						station.put("longitude", lng);
+			NodeList itemList = root.getElementsByTagName("item");
 
-						// 이름 추가하려면 여기서 stationName 같은 것도 넣을 수 있음
-						stations.add(station);
+			for (int i = 0; i < length; i++) {
+				Node itemNode = itemList.item(i);
+
+				if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element itemElement = (Element) itemNode;
+					Node stat_node = itemElement.getElementsByTagName("stat").item(0);
+					Node statId_node = itemElement.getElementsByTagName("statId").item(0);
+
+					if (stat_node != null) {
+						String stat = stat_node.getTextContent();
+						String statId = statId_node.getTextContent();
+						Map<String, Object> stat_map = new HashMap<>();
+						stat_map.put(statId, stat);
+
+						station_list.add(stat_map);
 					}
 				}
 			}
-			log.info("조회 완료, 총 {}개의 충전소 발견", stations.size());
+			log.info(station_list + "");
 
 		} catch (Exception e) {
-			log.error("충전소 조회 중 오류 발생", e);
+			e.printStackTrace();
 		}
 
-		return stations;
+		return station_list;
 	}
 
-	// 거리 계산하기(km를 위도와 경도로 변환)
-	private double getDistance(double lat1, double lon1, double lat2, double lon2) {
-		double R = 6371; // 지구 반지름 (km)
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLon = Math.toRadians(lon2 - lon1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double distance = R * c;
-		return distance;
+	@RequestMapping("/update")
+	public void dataUpdate() {
+		// 파일 저장
+		try {
+			String urlString = "https://apis.data.go.kr/B552584/EvCharger/getChargerStatus?serviceKey=ha6Vs0w2TW5hmQMnGjVefZDfIMjkFiXLXhNYfw0kPcJd470rlZfa95pVgwgLfQYMXmMVe0%2BjwHptLmAGdhXaCw%3D%3D&pageNo=1&numOfRows=10&period=5&zcode=11";
+			URL url = new URL(urlString);
+
+			InputStream inputStream = url.openStream();
+			String savePath = "C:\\Users\\user\\test.xml"; // 예: "C:/data/page1.xml"
+			Files.copy(inputStream, Paths.get(savePath));
+			inputStream.close();
+
+			System.out.println("파일 저장 완료: " + savePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

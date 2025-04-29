@@ -11,17 +11,18 @@
 	</head>
 
 	<body>
-		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=109dd4a6fbdf108d896544146388b47e"></script>
-		
+		<script type="text/javascript"
+			src="//dapi.kakao.com/v2/maps/sdk.js?appkey=109dd4a6fbdf108d896544146388b47e"></script>
+
+		<jsp:include page="/WEB-INF/views/header.jsp" />
 		<!-- 지도 표시 -->
 		<div id="map" style="width:100%;height:700px;"></div>
-		
+
 		<!-- 추후에 사용자 세션 받아서 blind 및 display 처리 요망. -->
 		<!-- 사용자 세션 받으면 center_lat과 center_lng는 사용자 가입시 설정되는 area 값으로 지정 -->
 		<div id="sidebar">
 			<h1>지역 선택</h1>
-			<a href="login"><button>로그인</button></a>
-			<a href="registe"><button>회원가입</button></a>
+
 
 			<form id="address-form">
 				<label for="area_ctpy_nm">시/도</label>
@@ -57,8 +58,9 @@
 					<!-- 읍/면/동 옵션이 여기에 동적으로 추가됩니다 -->
 				</select>
 
-				<input type="button" value="검색하기">
+				<input type="button" id="search_btn" value="검색하기">
 			</form>
+			<button id="update">새로고침</button>
 		</div>
 
 		<script type="text/javascript">
@@ -156,25 +158,25 @@
 								map.setCenter(newCenter);
 								console.log("새로운 중심 좌표:", center_lat, center_lng);
 
-								//주변 충전소를 찾기위한 데이터 전송
-								fetch('/updateMapCoordinates/findStationsNear', {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json'
-									},
-									body: JSON.stringify({
-										center_lat: center_lat,
-										center_lng: center_lng
-									})
-								})
-									.then(response => response.json())
-									.then(data => {
-										removeMarkers(); // 기존 마커 제거
-										for (var i = 0; i < data.length; i++) {
-											addMarker(data[i].latitude, data[i].longitude, data[i].stationName);
-										}
-									})
-									.catch(error => console.error("에러 발생:", error));
+								// //주변 충전소를 찾기위한 데이터 전송
+								// fetch('/updateMapCoordinates/findStationsNear', {
+								// 	method: 'POST',
+								// 	headers: {
+								// 		'Content-Type': 'application/json'
+								// 	},
+								// 	body: JSON.stringify({
+								// 		center_lat: center_lat,
+								// 		center_lng: center_lng
+								// 	})
+								// })
+								// 	.then(response => response.json())
+								// 	.then(data => {
+								// 		removeMarkers(); // 기존 마커 제거
+								// 		for (var i = 0; i < data.length; i++) {
+								// 			addMarker(data[i].latitude, data[i].longitude, data[i].stationName);
+								// 		}
+								// 	})
+								// 	.catch(error => console.error("에러 발생:", error));
 							} else {
 								alert("해당 정보는 없는 정보입니다.");
 							}
@@ -188,6 +190,45 @@
 				}
 			});
 
+			// 백경흠
+			//============================================
+			$(document).ready(function () {
+				$("#search_btn").on("click", function () {
+					var area_ctpy_nm = document.getElementById("area_ctpy_nm").value;
+					var area_sgg_nm = document.getElementById("area_sgg_nm").value;
+
+					$.ajax({
+						type: "post",
+						url: "/findStationsNear",
+						data: {
+							area_ctpy_nm: area_ctpy_nm,
+							area_sgg_nm: area_sgg_nm
+						},
+						success: function (station_list) {
+							alert("갔다옴" + JSON.stringify(station_list));
+						},
+						error: function () {
+							alert("오류");
+						}
+					});
+				});
+
+				$("#update").on("click", function () {
+					$.ajax({
+						type: "post",
+						url: "/update",
+						data: {
+						},
+						success: function () {
+							alert("성공!");
+						},
+						error: function () {
+							alert("오류");
+						}
+					});
+				});
+			});
+			//============================================
 			// 마커 찍기
 			function addMarker(lat, lng, title) {
 				var marker = new kakao.maps.Marker({
