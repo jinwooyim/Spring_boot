@@ -26,8 +26,8 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public int login(String id, String pw) {
 		MemberDAO dao = sqlSession.getMapper(MemberDAO.class);
-		dao.login(id, pw);
-		return 0;
+		int result = dao.login(id, pw);
+		return result;
 	}
 
 	@Override
@@ -39,9 +39,16 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public MemberDTO select_area(String id) {
+	public MemberDTO member_find(String id) {
 		MemberDAO dao = sqlSession.getMapper(MemberDAO.class);
-		MemberDTO dto = dao.select_area(id);
+		MemberDTO dto = dao.member_find(id);
 		return dto;
+	}
+
+	@Override
+	public void update_ok(HashMap<String, String> param) {
+		MemberDAO dao = sqlSession.getMapper(MemberDAO.class);
+		dao.update_ok(param);
+		log.info("수정완료");
 	}
 }

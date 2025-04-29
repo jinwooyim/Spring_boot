@@ -13,6 +13,8 @@ public interface MemberDAO {
 
 	public int login(@Param("user_id") String id, @Param("user_password") String pw);
 
-	public MemberDTO select_area(@Param("user_id") String id);
+	public MemberDTO member_find(@Param("user_id") String id);
+
+	public void update_ok(HashMap<String, String> param);
 
 }
