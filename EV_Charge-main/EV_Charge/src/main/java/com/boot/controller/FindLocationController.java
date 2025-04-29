@@ -1,10 +1,8 @@
 package com.boot.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONArray;
@@ -30,10 +28,38 @@ public class FindLocationController {
 		String[] coordinates = new String[2]; // [0] -> latitude, [1] -> longitude
 
 		try {
-			String addressString = address.getArea_ctpy_nm() + " " + address.getArea_sgg_nm() + " "
-					+ address.getArea_emd_nm();
+			String addressString = buildAddress(address, true);
+			JSONArray documents = getJSONResponse(addressString);
 
-			// URL 인코딩
+			if (documents == null || documents.length() == 0) {
+				// 읍/면/동이 없는 주소로 fallback
+				addressString = buildAddress(address, false);
+				documents = getJSONResponse(addressString);
+			}
+
+			if (documents != null && documents.length() > 0) {
+				JSONObject firstDocument = documents.getJSONObject(0);
+				coordinates[0] = firstDocument.getString("y"); // 위도
+				coordinates[1] = firstDocument.getString("x"); // 경도
+			} else {
+				return new JSONObject().put("error", "주소에 대한 좌표를 찾을 수 없습니다.").toString();
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return new JSONObject().put("error", "응답에서 JSON 파싱 중 오류가 발생했습니다.").toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new JSONObject().put("error", "알 수 없는 오류가 발생했습니다.").toString();
+		}
+
+		// 성공적으로 위도와 경도를 반환
+		return new JSONObject().put("latitude", coordinates[0]).put("longitude", coordinates[1]).toString();
+	}
+
+	// kakao API를 이용해서 주소값을 위도와 경도를 가진 JSON 배열로 반환하는 메소드
+	public JSONArray getJSONResponse(String addressString) {
+		try {
 			String encodedAddress = java.net.URLEncoder.encode(addressString, "UTF-8");
 
 			String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json?query=" + encodedAddress;
@@ -58,33 +84,22 @@ public class FindLocationController {
 			JSONObject jsonResponse = new JSONObject(response.toString());
 			JSONArray documents = jsonResponse.getJSONArray("documents");
 
-			// documents 배열이 비어 있지 않은지 확인
-			if (documents.length() > 0) {
-				JSONObject firstDocument = documents.getJSONObject(0);
+			return documents;
 
-				// 위도와 경도 추출
-				coordinates[0] = firstDocument.getString("y"); // 위도
-				coordinates[1] = firstDocument.getString("x"); // 경도
-			} else {
-				throw new JSONException("No documents found in the response.");
-			}
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return new JSONObject().put("error", "잘못된 URL 형식입니다.").toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new JSONObject().put("error", "API 요청 중 오류가 발생했습니다.").toString();
-		} catch (JSONException e) {
-			e.printStackTrace();
-			return new JSONObject().put("error", "응답에서 JSON 파싱 중 오류가 발생했습니다.").toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new JSONObject().put("error", "알 수 없는 오류가 발생했습니다.").toString();
 		}
 
-		// 성공적으로 위도와 경도를 반환
-		return new JSONObject().put("latitude", coordinates[0]).put("longitude", coordinates[1]).toString();
+		return null;
+	}
+
+	// 읍면동 주소값이 있는지 없는지 판별하는 메소드
+	private String buildAddress(AreaDTO address, boolean includeEmd) {
+		String addr = address.getArea_ctpy_nm() + " " + address.getArea_sgg_nm();
+		if (includeEmd && address.getArea_emd_nm() != null && !address.getArea_emd_nm().isEmpty()) {
+			addr += " " + address.getArea_emd_nm();
+		}
+		return addr;
 	}
 
 //	@PostMapping("/findStationsNear")

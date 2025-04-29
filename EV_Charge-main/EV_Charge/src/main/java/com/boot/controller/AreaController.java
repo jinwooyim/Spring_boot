@@ -1,5 +1,5 @@
 package com.boot.controller;
 
-public class EreaController {
+public class AreaController {
 
 }
