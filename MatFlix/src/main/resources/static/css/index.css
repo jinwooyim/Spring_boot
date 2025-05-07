@@ -1,0 +1,27 @@
+html{
+	margin:0;
+	padding:0;
+}
+
+body{
+	margin:0;
+	padding:0;	
+}
+
+#sidebar_toggle{
+  margin-left: 270px;
+  transition: margin-left 0.3s ease;	
+}
+
+#sidebar_toggle.sidebar_hidden {
+  margin-left: 0;
+}
+
+.main_wrapper {
+  margin-left: 350px;
+  transition: margin-left 0.3s ease;	
+}
+
+.main_wrapper.sidebar_hidden {
+  margin-left: 0;
+}
