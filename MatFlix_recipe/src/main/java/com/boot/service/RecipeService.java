@@ -33,4 +33,8 @@ public interface RecipeService {
 	public ArrayList<RcIngredientDTO> get_recipe_ingredient_by_id(int rc_recipe_id);
 
 	public ArrayList<RcCourseDTO> get_recipe_course_by_id(int rc_recipe_id);
+
+//===========================================================================
+//	페이징 리스트
+	public RecipeDTO paging_recipe_list(int rc_recipe_id);
 }

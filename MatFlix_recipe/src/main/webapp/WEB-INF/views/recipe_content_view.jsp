@@ -105,6 +105,7 @@ const commentWrite = () => {
         }
         , url: "/rc_comment/save"
         , success: function (commentList) {
+            alert("댓글이 작성되었습니다.");
             console.log("작성 성공");
             console.log(commentList);
 

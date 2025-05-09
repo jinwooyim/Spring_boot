@@ -79,4 +79,13 @@ public class RecipeServiceImpl implements RecipeService {
 		return coursedto;
 	}
 
+//	페이징 리스트
+//===========================================================================	
+	@Override
+	public RecipeDTO paging_recipe_list(int rc_recipe_id) {
+		RecipeDAO dao = session.getMapper(RecipeDAO.class);
+		RecipeDTO dto = dao.paging_recipe_list(rc_recipe_id);
+		return dto;
+	}
+
 }

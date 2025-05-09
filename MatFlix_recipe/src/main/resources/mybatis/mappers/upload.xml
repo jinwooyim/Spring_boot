@@ -27,4 +27,5 @@
     	select uuid,uploadPath,fileName,image,rc_recipe_id 
 		  from rc_attach
     </select>
+
 </mapper>

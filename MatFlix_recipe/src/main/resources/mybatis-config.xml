@@ -8,5 +8,6 @@
 		<mapper resource="mybatis/mappers/upload.xml"/>
 		<mapper resource="mybatis/mappers/rc_board.xml"/>
 		<mapper resource="mybatis/mappers/rc_comment.xml"/>
+		<mapper resource="mybatis/mappers/rc_page.xml"/>
 	</mappers>
 </configuration>

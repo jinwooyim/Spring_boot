@@ -16,4 +16,5 @@ public interface RecipeAttachDAO {
 
 //	모든 파일 정보 리스트
 	public ArrayList<RecipeAttachDTO> get_upload_all();
+
 }

@@ -28,6 +28,10 @@
             margin: 0;
             font-size: 14px;
         }
+        .div_page ul {
+            display: flex;
+            list-style: none;
+        }
     </style>
 </head>
 <body>
@@ -36,82 +40,78 @@
 
 <!-- 검색창 -->
 <form method="get" id="searchForm">
-    <select name="type">
-        <option value="" <c:out value="${pageMaker.cri.type == null ? 'selected':''}"/>>전체</option>
-        <option value="T" <c:out value="${pageMaker.cri.type eq 'T' ? 'selected':''}"/>>제목</option>
-        <option value="C" <c:out value="${pageMaker.cri.type eq 'C' ? 'selected':''}"/>>내용</option>
-        <option value="W" <c:out value="${pageMaker.cri.type eq 'W' ? 'selected':''}"/>>작성자</option>
-        <option value="TC" <c:out value="${pageMaker.cri.type eq 'TC' ? 'selected':''}"/>>제목 or 내용</option>
-        <option value="TW" <c:out value="${pageMaker.cri.type eq 'TW' ? 'selected':''}"/>>제목 or 작성자</option>
-        <option value="TCW" <c:out value="${pageMaker.cri.type eq 'TCW' ? 'selected':''}"/>>제목 or 내용 or 작성자</option>
+    <select name="rc_type">
+        <option value="" <c:out value="${pageMaker.cri.rc_type == null ? 'selected':''}"/>>전체</option>
+        <option value="T" <c:out value="${pageMaker.cri.rc_type eq 'T' ? 'selected':''}"/>>제목</option>
+        <option value="C" <c:out value="${pageMaker.cri.rc_type eq 'C' ? 'selected':''}"/>>내용</option>
+        <option value="W" <c:out value="${pageMaker.cri.rc_type eq 'W' ? 'selected':''}"/>>작성자</option>
+        <option value="TC" <c:out value="${pageMaker.cri.rc_type eq 'TC' ? 'selected':''}"/>>제목 or 내용</option>
+        <option value="TW" <c:out value="${pageMaker.cri.rc_type eq 'TW' ? 'selected':''}"/>>제목 or 작성자</option>
+        <option value="TCW" <c:out value="${pageMaker.cri.rc_type eq 'TCW' ? 'selected':''}"/>>제목 or 내용 or 작성자</option>
     </select>
 
     <!-- Criteria 를 이용해서 키워드 값을 넘김 -->
-    <input type="text" name="keyword" value="${pageMaker.cri.keyword}">
+    <input type="text" name="rc_keyword" value="${pageMaker.cri.rc_keyword}">
     <!-- 전체검색중 4페이지에서 내용을 88 키워드로 검색시 안나올때 처리 -->
-    <input type="hidden" name="pageNum" value="1">
-    <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
+    <input type="hidden" name="rc_pageNum" value="1">
+    <input type="hidden" name="rc_amount" value="${pageMaker.cri.rc_amount}">
     <button>입력</button>
 </form>
-
 <div class="recipe_grid">
     <c:forEach var="recipe" items="${recipe_list_all}">
-    <c:set var="recipe_id" value="${recipe.rc_recipe_id}" />
-    <a href="recipe_content_view?rc_recipe_id=${recipe.rc_recipe_id}">
+        <c:set var="recipe_id" value="${recipe.rc_recipe_id}" />
+        <a href="recipe_content_view?rc_recipe_id=${recipe.rc_recipe_id}">
             <div class="recipe_card">
-            <c:set var="found_image" value="false" />
-            <c:forEach var="attach" items="${file_list_all}">
-                <c:if test="${!found_image && attach.rc_recipe_id == recipe_id && attach.image}">
-                    <img src="/upload/${attach.uploadPath}/${attach.uuid}_${attach.fileName}" alt="${recipe.rc_name}" />
-                    <c:set var="found_image" value="true" />
-                </c:if>
-            </c:forEach>
+                <c:set var="found_image" value="false" />
+                <c:forEach var="attach" items="${file_list_all}">
+                    <c:if test="${!found_image && attach.rc_recipe_id == recipe_id && attach.image}">
+                        <img src="/upload/${attach.uploadPath}/${attach.uuid}_${attach.fileName}" alt="${recipe.rc_name}" />
+                        <c:set var="found_image" value="true" />
+                    </c:if>
+                </c:forEach>
 
-            <p>
-                ${recipe.rc_recipe_id}. ${recipe.rc_name} <br/>
-                (${recipe.rc_created_at})
-            </p>
-        </div>
-    </a>
-</c:forEach>
+                <p>
+                    ${recipe.rc_recipe_id}. ${recipe.rc_name} <br/>
+                    (${recipe.rc_created_at})
+                </p>
+            </div>
+        </a>
+    </c:forEach>
 </div>
 
 <h3>${pageMaker}</h3>
 <div class="div_page">
     <ul>
-        <c:if test="${pageMaker.prev}">
+        <c:if test="${pageMaker.rc_prev}">
             <li class="paginate_button">
-                <a href="${pageMaker.startPage -1}">
+                <a href="${pageMaker.rc_startPage -1}">
                     [Previous]
                 </a>
             </li>
         </c:if>
 
-        <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
-            <!-- <li>[${num}]</li> -->
-            <!-- <li ${pageMaker.cri.pageNum == num ? "style='color: red;'":""}>[${num}]</li> -->
-            <li class="paginate_button" ${pageMaker.cri.pageNum==num ? "style='color: red;'" :""}>
+        <c:forEach var="num" begin="${pageMaker.rc_startPage}" end="${pageMaker.rc_endPage}">
+            <li class="paginate_button" ${pageMaker.cri.rc_pageNum==num ? "style='color: red;'" :""}>
                 <a href="${num}">
                     [${num}]
                 </a>&nbsp;&nbsp;&nbsp;&nbsp;
             </li>
         </c:forEach>
 
-        <c:if test="${pageMaker.next}">
+        <c:if test="${pageMaker.rc_next}">
             <li class="paginate_button">
-                <a href="${pageMaker.endPage +1}">
+                <a href="${pageMaker.rc_endPage +1}">
                     [Next]
                 </a>
             </li>
         </c:if>
     </ul>
 </div>
-<form id="actionForm" action="list" method="get">
-    <input type="hidden" name="pageNum" value="${pageMaker.cri.pageNum}">
-    <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
-    <!-- 페이징 검색시 페이지번호를 클릭할때 필요한 파라미터 -->
-    <input type="hidden" name="type" value="${pageMaker.cri.type}">
-    <input type="hidden" name="keyword" value="${pageMaker.cri.keyword}">
+<form id="actionForm" action="recipe_board" method="get">
+    <input type="hidden" name="rc_pageNum" value="${pageMaker.cri.rc_pageNum}">
+    <input type="hidden" name="rc_amount" value="${pageMaker.cri.rc_amount}">
+    <input type="hidden" name="rc_type" value="${pageMaker.cri.rc_type}">
+    <input type="hidden" name="rc_keyword" value="${pageMaker.cri.rc_keyword}">
 </form>
 </body>
 </html>
@@ -122,11 +122,12 @@ var actionForm = $("#actionForm");
         e.preventDefault();
         console.log("click~!!!");
         console.log("@# href =>" + $(this).attr("href"));
-        actionForm.find("input[name='pageNum']").val($(this).attr("href"));
+        actionForm.find("input[name='rc_pageNum']").val($(this).attr("href"));
 
         // actionForm.submit();
 
         //버그 처리(게시글 클릭후 뒤로가기 누른후 다른 페이지 클릭할때 content_view가 작동되는것을 해결)
-        actionForm.attr("action", "list").submit();
+        actionForm.attr("action", "recipe_board").submit();
     }); // end of paginate_button click
+
 </script>

@@ -1,13 +1,10 @@
 package com.boot.service;
 
-import java.util.ArrayList;
-
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.boot.dao.RecipePageDAO;
-import com.boot.dto.RecipeBoardDTO;
 import com.boot.dto.RecipeCriteria;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +17,12 @@ public class RecipePageServiceImpl implements RecipePageService {
 	private SqlSession sqlSession;
 
 	@Override
-	public ArrayList<RecipeBoardDTO> listWithPaging(RecipeCriteria cri) {
+	public int[] listWithPaging(RecipeCriteria cri) {
 		log.info("@# PageServiceImpl listWithPaging");
 		log.info("@# cri" + cri);
 
 		RecipePageDAO dao = sqlSession.getMapper(RecipePageDAO.class);
-		ArrayList<RecipeBoardDTO> list = dao.listWithPaging(cri);
+		int[] list = dao.listWithPaging(cri);
 
 		return list;
 	}

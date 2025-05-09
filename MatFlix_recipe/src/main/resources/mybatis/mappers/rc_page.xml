@@ -5,48 +5,36 @@
 <mapper namespace="com.boot.dao.RecipePageDAO">
 
 <sql id="criteria">
-<!--	1번 방법-->
-<!--	<if test="type == 'T'.toString()"></if>-->
-<!--	2번 방법-->
-	<if test='type == "T"'>
-		where rc_boardTitle like concat('%', #{keyword}, '%')
-	</if>
-	<if test='type == "C"'>
-		where rc_boardContent like concat('%', #{keyword}, '%')
-	</if>
-	<if test='type == "W"'>
-		where rc_boardName like concat('%', #{keyword}, '%')
-	</if>
-	<if test='type == "TC"'>
-		where rc_boardTitle like concat('%', #{keyword}, '%') or rc_boardContent like concat('%', #{keyword}, '%')
-	</if>
-	<if test='type == "TW"'>
-		where rc_boardTitle like concat('%', #{keyword}, '%') or rc_boardName like concat('%', #{keyword}, '%')
-	</if>
-	<if test='type == "TCW"'>
-		where rc_boardTitle like concat('%', #{keyword}, '%') or rc_boardContent like concat('%', #{keyword}, '%') or rc_boardName like concat('%', #{keyword}, '%')
-	</if>
+  <if test="rc_type == 'T'">
+    WHERE rc_name LIKE CONCAT('%', #{keyword}, '%')
+  </if>
+  <if test="rc_type == 'C'">
+    WHERE rc_description LIKE CONCAT('%', #{keyword}, '%')
+  </if>
+  <if test="rc_type == 'TC'">
+    WHERE rc_name LIKE CONCAT('%', #{keyword}, '%')
+      OR rc_description LIKE CONCAT('%', #{keyword}, '%')
+  </if>
 </sql>
-    <select id="listWithPaging" resultType="com.boot.dto.RecipeBoardDTO">
-	 	<![CDATA[ 
-	 	select rc_boardNo, rc_boardName, rc_boardTitle,rc_boardContent,rc_boardDate,rc_boardHit
-		from(select rownum, rc_boardNo, rc_boardName, rc_boardTitle,rc_boardContent,rc_boardDate,rc_boardHit 
-			from(select row_number() over(order by rc_boardNo desc) as rownum, rc_boardNo, rc_boardName, rc_boardTitle,rc_boardContent,rc_boardDate,rc_boardHit 
-					from rc_board
-					]]>
-					<include refid="criteria"></include>
-					<![CDATA[
-					order by rc_boardNo desc
-		        ) a 
-			where rownum <= (#{pageNum}*#{amount})
-		) aa
-		where rownum > ((#{pageNum}-1)*#{amount})
-	 	]]>
-    </select>
+
+ <select id="listWithPaging" resultType="int">
+  <![CDATA[
+    SELECT rc_recipe_id FROM (
+      SELECT row_number() OVER (ORDER BY rc_recipe_id DESC) AS rownum, rc_recipe_id
+      FROM recipe
+      ]]>
+      <include refid="criteria"></include>
+      <![CDATA[
+    ) a
+    WHERE rownum <= (#{rc_pageNum} * #{rc_amount})
+      AND rownum > ((#{rc_pageNum} - 1) * #{rc_amount})
+  ]]>
+</select>
     
 	<select id="totalList" resultType="int">
-	    select count(*) from rc_board
-	    <include refid="criteria"></include>
+	  SELECT COUNT(*) 
+	  FROM recipe
+	  <include refid="criteria"></include>
 	</select>
 </mapper>
 

@@ -50,9 +50,12 @@ import com.boot.dto.RcIngredientDTO;
 import com.boot.dto.RecipeAttachDTO;
 import com.boot.dto.RecipeBoardDTO;
 import com.boot.dto.RecipeCommentDTO;
+import com.boot.dto.RecipeCriteria;
 import com.boot.dto.RecipeDTO;
+import com.boot.dto.RecipePageDTO;
 import com.boot.service.RecipeBoardService;
 import com.boot.service.RecipeCommentService;
+import com.boot.service.RecipePageService;
 import com.boot.service.RecipeService;
 import com.boot.service.RecipeUploadService;
 
@@ -73,6 +76,9 @@ public class RecipeController {
 
 	@Autowired
 	private RecipeCommentService service_comment;
+
+	@Autowired
+	private RecipePageService service_page;
 
 	@RequestMapping("/main")
 	public String main(Model model) {
@@ -357,12 +363,21 @@ public class RecipeController {
 	// 요리 게시판
 	// ===================================================================================
 	@RequestMapping("/recipe_board")
-	public String recipe_board(Model model) {
-		List<RecipeDTO> recipe_list_all = service.find_list_all();
-		List<RecipeAttachDTO> file_list_all = service_attach.get_upload_all();
+	public String recipe_board(RecipeCriteria cri, Model model) {
+		List<RecipeAttachDTO> paging_file_list = new ArrayList<>();
+		List<RecipeDTO> paging_recipe_list = new ArrayList<>();
+		int[] rc_recipe_id_list = service_page.listWithPaging(cri);
 
-		model.addAttribute("recipe_list_all", recipe_list_all);
-		model.addAttribute("file_list_all", file_list_all);
+		for (int i = 0; i < rc_recipe_id_list.length; i++) {
+			paging_recipe_list.add(service.paging_recipe_list(rc_recipe_id_list[i]));
+			paging_file_list.add(service_attach.get_upload_by_id(rc_recipe_id_list[i]));
+		}
+
+		log.info("@# list  =>  " + service_page.listWithPaging(cri));
+		System.out.println(service_page.listWithPaging(cri));
+		model.addAttribute("pageMaker", new RecipePageDTO(service_page.totalList(cri), cri));
+		model.addAttribute("recipe_list_all", paging_recipe_list);
+		model.addAttribute("file_list_all", paging_file_list);
 
 		return "recipe_board";
 	}

@@ -17,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.boot.dto.RecipeCriteria;
-import com.boot.dto.RecipePageDTO;
 import com.boot.service.RecipePageService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +27,9 @@ public class RecipePageController {
 	@Autowired
 	private RecipePageService service_page;
 
-	@RequestMapping("/list")
+	@RequestMapping("/rc_list")
 	public String list(RecipeCriteria cri, Model model) {
-		log.info("@# list()");
-		log.info("@# cri" + cri);
 
-		model.addAttribute("list", service_page.listWithPaging(cri));
-		model.addAttribute("pageMaker", new RecipePageDTO(service_page.totalList(cri), cri));
-
-		return "list";
+		return "recipe_board";
 	}
 }
