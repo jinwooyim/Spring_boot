@@ -10,6 +10,7 @@
 * 2025-05-07   임진우       최초 생성
 * 2025-05-07   임진우       Spring Lagacy에서 Boot로 이동
 * 2025-05-07   임진우       이미지 파일 업로드 완료
+* 2025-05-08   임진우       main : 이미지 나타내기 로직 구현 => 카테로리별 리스트
 ============================================================*/
 
 package com.boot.controller;
@@ -43,7 +44,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.boot.dto.RcCourseDTO;
+import com.boot.dto.RcIngredientDTO;
 import com.boot.dto.RecipeAttachDTO;
+import com.boot.dto.RecipeDTO;
 import com.boot.service.RecipeService;
 import com.boot.service.UploadService;
 
@@ -60,7 +64,43 @@ public class RecipeController {
 	private UploadService service_attach;
 
 	@RequestMapping("/main")
-	public String home() {
+	public String main(Model model) {
+
+//		카테고리 별 레시피id 모음
+		int[] korean_food = service.get_food(1);
+		int[] american_food = service.get_food(2);
+		int[] japanese_food = service.get_food(3);
+		int[] chinese_food = service.get_food(4);
+		int[] dessert = service.get_food(5);
+
+		List<RecipeAttachDTO> korean_food_list = new ArrayList<>();
+		List<RecipeAttachDTO> american_food_list = new ArrayList<>();
+		List<RecipeAttachDTO> japanese_food_list = new ArrayList<>();
+		List<RecipeAttachDTO> chinese_food_list = new ArrayList<>();
+		List<RecipeAttachDTO> dessert_list = new ArrayList<>();
+
+		for (int i = 0; i < korean_food.length; i++) { // 한식 파일 리스트
+			korean_food_list.add(service_attach.get_upload_by_id(korean_food[i]));
+		}
+		for (int i = 0; i < american_food.length; i++) { // 양식 파일 리스트
+			american_food_list.add(service_attach.get_upload_by_id(american_food[i]));
+		}
+		for (int i = 0; i < japanese_food.length; i++) { // 일식 파일 리스트
+			japanese_food_list.add(service_attach.get_upload_by_id(japanese_food[i]));
+		}
+		for (int i = 0; i < chinese_food.length; i++) { // 중식 파일 리스트
+			chinese_food_list.add(service_attach.get_upload_by_id(chinese_food[i]));
+		}
+		for (int i = 0; i < dessert.length; i++) { // 디저트 파일 리스트
+			dessert_list.add(service_attach.get_upload_by_id(dessert[i]));
+		}
+
+		model.addAttribute("korean_food_list", korean_food_list);
+		model.addAttribute("american_food_list", american_food_list);
+		model.addAttribute("japanese_food_list", japanese_food_list);
+		model.addAttribute("chinese_food_list", chinese_food_list);
+		model.addAttribute("dessert_list", dessert_list);
+
 		return "main";
 	}
 
@@ -80,15 +120,7 @@ public class RecipeController {
 			@RequestParam("rc_ingredient_amount[]") List<String> rc_ingredient_amount,
 			@RequestParam("rc_course_description[]") List<String> rc_course_description,
 			@RequestParam("rc_img") MultipartFile[] multipartFile, @RequestParam("mf_id") String mf_id, Model model,
-			HttpServletRequest request
-	// ================================================================
-//			@RequestParam("rc_course_img[]") List<MultipartFile> courseImages,
-	) {
-//		log.info("!@# params" + params);
-		System.out.println("!@# params" + params);
-		System.out.println("!@# ingredientAmounts" + rc_ingredient_amount);
-		System.out.println("!@# courseDescriptions" + rc_course_description);
-		System.out.println("!@# ingredientNames" + rc_ingredient_name);
+			HttpServletRequest request) {
 
 		// 레시피 정보 저장 (Map으로 구성)
 		HashMap<String, String> recipeData = new HashMap<>();
@@ -100,20 +132,15 @@ public class RecipeController {
 		recipeData.put("rc_tip", params.get("rc_tip"));
 		recipeData.put("rc_tag", params.get("rc_tag"));
 
-		System.out.println("insert recipe #1");
-
 		System.out.println(recipeData);
 		// insert 및 생성된 ID 추출
 		service.insert_recipe(recipeData);
-		System.out.println("insert recipe #1-1");
 
 		for (int i = 0; i < rc_course_description.size(); i++) {
 			service.insert_rc_course(rc_course_description.get(i));
-			System.out.println(i + "번째 실행");
 		}
 
 		for (int i = 0; i < rc_ingredient_name.size(); i++) {
-			System.out.println(i + "번째 실행");
 			service.insert_rc_ingredient(rc_ingredient_name.get(i), rc_ingredient_amount.get(i));
 		}
 
@@ -121,16 +148,19 @@ public class RecipeController {
 		List<RecipeAttachDTO> imgList = resList.getBody();
 		RecipeAttachDTO resultDTO = imgList.get(0);
 
+		log.info("@# insertRecipe : multipartFile =>" + multipartFile[0]);
+
 		int rc_recipe_id = service_attach.getMaxId();
 		log.info("현재 테이블상 최대 id값 =>" + rc_recipe_id);
 		resultDTO.setRc_recipe_id(rc_recipe_id);
 		service_attach.insertFile(resultDTO);
 
 		model.addAttribute("mf_id", mf_id);
-		return "redirect:/profile";
+		return "redirect:/main";
 	}
 
 	// 레시피 이미지 업로드
+	// ========================================================================================================================
 	@PostMapping("/uploadAjaxAction")
 	public ResponseEntity<List<RecipeAttachDTO>> uploadAjaxPost(@RequestParam("rc_img") MultipartFile[] mainImage) {
 		// 이미지 파일 업로드 및 미리보기 보여주기
@@ -177,6 +207,7 @@ public class RecipeController {
 //							썸네일 파일 형식을 100/100 크기로 생성
 					Thumbnailator.createThumbnail(fis, thumnail, 1600, 1600);
 
+					log.info("@# 저장완료");
 					thumnail.close();
 				}
 
@@ -200,8 +231,8 @@ public class RecipeController {
 		return new ResponseEntity<List<RecipeAttachDTO>>(list, HttpStatus.OK);
 	}
 
-	// ========================================================================================================================
 	// 이미지 생성시 필요한 메소드
+	// ========================================================================================================================
 //	날짜별 폴더 생성
 	public String getFolder() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -284,15 +315,6 @@ public class RecipeController {
 		return new ResponseEntity<String>("deleted", HttpStatus.OK);
 	}
 
-	@GetMapping("/getFileList")
-	public ResponseEntity<List<RecipeAttachDTO>> getFileList(@RequestParam HashMap<String, String> param) {
-		log.info("@# getFileList param=>" + param);
-		log.info("@# boardNo=>" + param.get("rc_recipe_id"));
-
-		return new ResponseEntity<>(service_attach.getFileList(Integer.parseInt(param.get("rc_recipe_id"))),
-				HttpStatus.OK);
-	}
-
 	@GetMapping("/download")
 	public ResponseEntity<Resource> download(String fileName) {
 		log.info("@# download fileName=>" + fileName);
@@ -318,6 +340,39 @@ public class RecipeController {
 
 //		윈도우 다운로드시 필요한 정보(리소스, 헤더, 상태OK)
 		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+	}
+
+	// 요리 게시판
+	// ===================================================================================
+	@RequestMapping("/recipe_board")
+	public String recipe_board(Model model) {
+		List<RecipeDTO> recipe_list_all = service.find_list_all();
+		List<RecipeAttachDTO> file_list_all = service_attach.get_upload_all();
+
+		model.addAttribute("recipe_list_all", recipe_list_all);
+		model.addAttribute("file_list_all", file_list_all);
+
+		return "recipe_board";
+	}
+
+	@RequestMapping("/recipe_content_view")
+	public String recipe_content_view(@RequestParam("rc_recipe_id") int rc_recipe_id, Model model) {
+		log.info("rc_recipe_id" + rc_recipe_id);
+
+//		해당 아이디로 정보 가져오기
+		RecipeDTO dto = service.get_recipe_by_id(rc_recipe_id);
+		List<RcIngredientDTO> ing_list = service.get_recipe_ingredient_by_id(rc_recipe_id);
+		List<RcCourseDTO> course_list = service.get_recipe_course_by_id(rc_recipe_id);
+		RecipeAttachDTO img_list = service_attach.get_upload_by_id(rc_recipe_id);
+
+		model.addAttribute("dto", dto);
+		model.addAttribute("ing_list", ing_list);
+		model.addAttribute("course_list", course_list);
+		model.addAttribute("img_list", img_list);
+
+		log.info("model" + model);
+
+		return "recipe_content_view";
 	}
 
 }

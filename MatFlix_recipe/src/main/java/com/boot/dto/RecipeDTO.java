@@ -14,7 +14,7 @@ public class RecipeDTO {
 	private String rc_name;
 	private String rc_description;
 	private int rc_category1_id;
-	private int rc_category2_id;
+	private String rc_category2_id;
 	private int rc_cooking_time;
 	private String rc_difficulty;
 	private Date rc_created_at;
