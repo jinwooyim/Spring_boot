@@ -11,6 +11,7 @@
 * 2025-05-07   임진우       Spring Lagacy에서 Boot로 이동
 * 2025-05-07   임진우       이미지 파일 업로드 완료
 * 2025-05-08   임진우       main : 이미지 나타내기 로직 구현 => 카테로리별 리스트
+* 2025-05-08   임진우       요리 게시판 리스트 및 해당 요리 뷰 작성
 ============================================================*/
 
 package com.boot.controller;
@@ -47,9 +48,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.boot.dto.RcCourseDTO;
 import com.boot.dto.RcIngredientDTO;
 import com.boot.dto.RecipeAttachDTO;
+import com.boot.dto.RecipeBoardDTO;
+import com.boot.dto.RecipeCommentDTO;
 import com.boot.dto.RecipeDTO;
+import com.boot.service.RecipeBoardService;
+import com.boot.service.RecipeCommentService;
 import com.boot.service.RecipeService;
-import com.boot.service.UploadService;
+import com.boot.service.RecipeUploadService;
 
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnailator;
@@ -61,7 +66,13 @@ public class RecipeController {
 	private RecipeService service;
 
 	@Autowired
-	private UploadService service_attach;
+	private RecipeUploadService service_attach;
+
+	@Autowired
+	private RecipeBoardService service_board;
+
+	@Autowired
+	private RecipeCommentService service_comment;
 
 	@RequestMapping("/main")
 	public String main(Model model) {
@@ -154,6 +165,7 @@ public class RecipeController {
 		log.info("현재 테이블상 최대 id값 =>" + rc_recipe_id);
 		resultDTO.setRc_recipe_id(rc_recipe_id);
 		service_attach.insertFile(resultDTO);
+		service_board.insert_rc_board(params, rc_recipe_id);
 
 		model.addAttribute("mf_id", mf_id);
 		return "redirect:/main";
@@ -364,12 +376,16 @@ public class RecipeController {
 		List<RcIngredientDTO> ing_list = service.get_recipe_ingredient_by_id(rc_recipe_id);
 		List<RcCourseDTO> course_list = service.get_recipe_course_by_id(rc_recipe_id);
 		RecipeAttachDTO img_list = service_attach.get_upload_by_id(rc_recipe_id);
+		RecipeBoardDTO rc_board = service_board.get_board_by_id(rc_recipe_id);
+		int rc_boardNo = rc_board.getRc_boardNo();
+		ArrayList<RecipeCommentDTO> commentList = service_comment.findAll(rc_boardNo);
 
 		model.addAttribute("dto", dto);
 		model.addAttribute("ing_list", ing_list);
 		model.addAttribute("course_list", course_list);
 		model.addAttribute("img_list", img_list);
-
+		model.addAttribute("rc_board", rc_board);
+		model.addAttribute("commentList", commentList);
 		log.info("model" + model);
 
 		return "recipe_content_view";

@@ -3,15 +3,14 @@ package com.boot.service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.boot.dao.RecipeAttachDAO;
-import com.boot.dto.RecipeAttachDTO;
+import com.boot.dao.BoardAttachDAO;
+import com.boot.dto.BoardAttachDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,9 +20,18 @@ public class UploadServiceImpl implements UploadService {
 	@Autowired
 	private SqlSession sqlSession;
 
+	@Override
+	public List<BoardAttachDTO> getFileList(int boardNo) {
+		log.info("@# UploadServiceImpl boardNo=>" + boardNo);
+
+		BoardAttachDAO dao = sqlSession.getMapper(BoardAttachDAO.class);
+
+		return dao.getFileList(boardNo);
+	}
+
 	// 폴더에 저장된 파일들 삭제
 	@Override
-	public void deleteFiles(List<RecipeAttachDTO> fileList) {
+	public void deleteFiles(List<BoardAttachDTO> fileList) {
 		log.info("@# deleteFile fileList=>" + fileList);
 
 		if (fileList == null || fileList.size() == 0) {
@@ -46,35 +54,6 @@ public class UploadServiceImpl implements UploadService {
 				log.error("delete file error" + e.getMessage());
 			}
 		});
-	}
-
-	@Override
-	public void insertFile(RecipeAttachDTO filedto) {
-		log.info("@# insertFile filedto=>" + filedto);
-
-		RecipeAttachDAO dao = sqlSession.getMapper(RecipeAttachDAO.class);
-		dao.insertFile(filedto);
-	}
-
-	@Override
-	public int getMaxId() {
-		RecipeAttachDAO dao = sqlSession.getMapper(RecipeAttachDAO.class);
-		int maxId = dao.getMaxId();
-		return maxId;
-	}
-
-	@Override
-	public RecipeAttachDTO get_upload_by_id(int rc_recipe_id) {
-		RecipeAttachDAO dao = sqlSession.getMapper(RecipeAttachDAO.class);
-		RecipeAttachDTO dto = dao.get_upload_by_id(rc_recipe_id);
-		return dto;
-	}
-
-	@Override
-	public ArrayList<RecipeAttachDTO> get_upload_all() {
-		RecipeAttachDAO dao = sqlSession.getMapper(RecipeAttachDAO.class);
-		ArrayList<RecipeAttachDTO> list = dao.get_upload_all();
-		return list;
 	}
 
 }

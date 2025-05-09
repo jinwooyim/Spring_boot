@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<script src="${pageContext.request.contextPath}/js/jquery.js"></script>
 <html>
 <head>
     <style>
@@ -33,6 +33,27 @@
 <body>
 <button class="add_recipe_btn" onclick="location.href='insert_recipe'"><i class="fas fa-plus"></i> 새 레시피 등록</button>
 <button class="add_recipe_btn" onclick="location.href='main'"><i class="fas fa-plus"></i>메인화면으로</button>
+
+<!-- 검색창 -->
+<form method="get" id="searchForm">
+    <select name="type">
+        <option value="" <c:out value="${pageMaker.cri.type == null ? 'selected':''}"/>>전체</option>
+        <option value="T" <c:out value="${pageMaker.cri.type eq 'T' ? 'selected':''}"/>>제목</option>
+        <option value="C" <c:out value="${pageMaker.cri.type eq 'C' ? 'selected':''}"/>>내용</option>
+        <option value="W" <c:out value="${pageMaker.cri.type eq 'W' ? 'selected':''}"/>>작성자</option>
+        <option value="TC" <c:out value="${pageMaker.cri.type eq 'TC' ? 'selected':''}"/>>제목 or 내용</option>
+        <option value="TW" <c:out value="${pageMaker.cri.type eq 'TW' ? 'selected':''}"/>>제목 or 작성자</option>
+        <option value="TCW" <c:out value="${pageMaker.cri.type eq 'TCW' ? 'selected':''}"/>>제목 or 내용 or 작성자</option>
+    </select>
+
+    <!-- Criteria 를 이용해서 키워드 값을 넘김 -->
+    <input type="text" name="keyword" value="${pageMaker.cri.keyword}">
+    <!-- 전체검색중 4페이지에서 내용을 88 키워드로 검색시 안나올때 처리 -->
+    <input type="hidden" name="pageNum" value="1">
+    <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
+    <button>입력</button>
+</form>
+
 <div class="recipe_grid">
     <c:forEach var="recipe" items="${recipe_list_all}">
     <c:set var="recipe_id" value="${recipe.rc_recipe_id}" />
@@ -55,5 +76,57 @@
 </c:forEach>
 </div>
 
+<h3>${pageMaker}</h3>
+<div class="div_page">
+    <ul>
+        <c:if test="${pageMaker.prev}">
+            <li class="paginate_button">
+                <a href="${pageMaker.startPage -1}">
+                    [Previous]
+                </a>
+            </li>
+        </c:if>
+
+        <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
+            <!-- <li>[${num}]</li> -->
+            <!-- <li ${pageMaker.cri.pageNum == num ? "style='color: red;'":""}>[${num}]</li> -->
+            <li class="paginate_button" ${pageMaker.cri.pageNum==num ? "style='color: red;'" :""}>
+                <a href="${num}">
+                    [${num}]
+                </a>&nbsp;&nbsp;&nbsp;&nbsp;
+            </li>
+        </c:forEach>
+
+        <c:if test="${pageMaker.next}">
+            <li class="paginate_button">
+                <a href="${pageMaker.endPage +1}">
+                    [Next]
+                </a>
+            </li>
+        </c:if>
+    </ul>
+</div>
+<form id="actionForm" action="list" method="get">
+    <input type="hidden" name="pageNum" value="${pageMaker.cri.pageNum}">
+    <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
+    <!-- 페이징 검색시 페이지번호를 클릭할때 필요한 파라미터 -->
+    <input type="hidden" name="type" value="${pageMaker.cri.type}">
+    <input type="hidden" name="keyword" value="${pageMaker.cri.keyword}">
+</form>
 </body>
 </html>
+<script>
+var actionForm = $("#actionForm");
+    // 페이지번호 처리
+    $(".paginate_button a").on("click", function (e) {
+        e.preventDefault();
+        console.log("click~!!!");
+        console.log("@# href =>" + $(this).attr("href"));
+        actionForm.find("input[name='pageNum']").val($(this).attr("href"));
+
+        // actionForm.submit();
+
+        //버그 처리(게시글 클릭후 뒤로가기 누른후 다른 페이지 클릭할때 content_view가 작동되는것을 해결)
+        actionForm.attr("action", "list").submit();
+    }); // end of paginate_button click
+</script>

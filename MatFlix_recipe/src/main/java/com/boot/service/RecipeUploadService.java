@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.boot.dto.RecipeAttachDTO;
 
-public interface UploadService {
+public interface RecipeUploadService {
 	public void insertFile(RecipeAttachDTO filedto);
 
 	public void deleteFiles(List<RecipeAttachDTO> fileList);

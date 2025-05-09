@@ -6,5 +6,7 @@
 	<mappers>
 		<mapper resource="mybatis/mappers/recipe.xml"/>
 		<mapper resource="mybatis/mappers/upload.xml"/>
+		<mapper resource="mybatis/mappers/rc_board.xml"/>
+		<mapper resource="mybatis/mappers/rc_comment.xml"/>
 	</mappers>
 </configuration>

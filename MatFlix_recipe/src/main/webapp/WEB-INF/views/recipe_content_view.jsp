@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<script src="${pageContext.request.contextPath}/js/jquery.js"></script>
 <html>
 <head>
     <title>${dto.rc_name} - 레시피 상세</title>
@@ -63,6 +64,73 @@
         <p>${dto.rc_tip}</p>
     </div>
 
+    <div>
+        <input type="text" id="rc_commentWriter" placeholder="작성자">
+        <input type="text" id="rc_commentContent" placeholder="내용">
+        <button onclick="commentWrite()">댓글작성</button>
+    </div>
+
+    <div id="comment-list">
+        <table>
+            <tr>
+                <th>댓글번호</th>
+                <th>작성자</th>
+                <th>내용</th>
+                <th>작성시간</th>
+            </tr>
+            <c:forEach items="${commentList}" var="comment">
+                <tr>
+                    <td>${comment.rc_commentNo}</td>
+                    <td>${comment.rc_commentWriter}</td>
+                    <td>${comment.rc_commentContent}</td>
+                    <td>${comment.rc_commentCreatedTime}</td>
+                </tr>
+            </c:forEach>
+        </table>
+    </div>
 </div>
 </body>
+<script>
+const commentWrite = () => {
+    const writer = document.getElementById("rc_commentWriter").value;
+    const content = document.getElementById("rc_commentContent").value;
+    const no = "${rc_board.rc_boardNo}";
+
+    $.ajax({
+        type: "post"
+        , data: {
+            rc_commentWriter: writer
+            , rc_commentContent: content
+            , rc_boardNo: no
+        }
+        , url: "/rc_comment/save"
+        , success: function (commentList) {
+            console.log("작성 성공");
+            console.log(commentList);
+
+            let output = "<table>";
+            output += "<tr><th>댓글번호</th>";
+            output += "<th>작성자</th>";
+            output += "<th>내용</th>";
+            output += "<th>작성시간</th></tr>";
+            for (let i in commentList) {
+                output += "<tr>";
+                output += "<td>" + commentList[i].rc_commentNo + "</td>";
+                output += "<td>" + commentList[i].rc_commentWriter + "</td>";
+                output += "<td>" + commentList[i].rc_commentContent + "</td>";
+                output += "<td>" + commentList[i].rc_commentCreatedTime + "</td>";
+                output += "</tr>";
+            }
+            output += "</table>";
+            console.log("@# output=>" + output);
+
+            document.getElementById("comment-list").innerHTML = output;
+        }
+        , error: function () {
+            console.log("실패");
+        }
+    });//end of ajax
+}//end of script
+</script>
+
 </html>
