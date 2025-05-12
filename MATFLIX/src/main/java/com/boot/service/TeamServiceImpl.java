@@ -54,7 +54,7 @@ public class TeamServiceImpl implements TeamService {
 	@Override
 	public void update_ok(HashMap<String, String> param) {
 		TeamDAO dao = sqlSession.getMapper(TeamDAO.class);
-		System.out.println("@# update ok => 	" + param);
+		System.out.println("@# update ok =>" + param);
 		dao.update_ok(param);
 		log.info("@# update_ok2!!!!!!!!");
 	}
@@ -69,5 +69,12 @@ public class TeamServiceImpl implements TeamService {
 	public void nickname(@Param("mf_nickname") String mf_nickname, @Param("mf_id") String mf_id) {
 		TeamDAO dao = sqlSession.getMapper(TeamDAO.class);
 		dao.nickname(mf_nickname, mf_id);
+	}
+
+	@Override
+	public TeamDTO find_user_by_no(int mf_no) {
+		TeamDAO dao = sqlSession.getMapper(TeamDAO.class);
+		TeamDTO dto = dao.find_user_by_no(mf_no);
+		return dto;
 	}
 }

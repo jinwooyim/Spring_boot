@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -17,9 +14,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.boot.dto.BoardAttachDTO;
 import com.boot.dto.BoardDTO;
 import com.boot.dto.CommentDTO;
-import com.boot.dto.TeamDTO;
+import com.boot.dto.RecommendDTO;
 import com.boot.service.BoardService;
 import com.boot.service.CommentService;
+import com.boot.service.EmailService;
+import com.boot.service.FollowService;
+import com.boot.service.NotificationService;
+import com.boot.service.RecommendService;
 import com.boot.service.UploadService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,18 @@ public class BoardController {
 	@Autowired
 	private UploadService uploadService;
 
+	@Autowired
+	private RecommendService recommendService;
+
+	@Autowired
+	private EmailService emailService;
+
+	@Autowired
+	private FollowService followService;
+
+	@Autowired
+	private NotificationService notificationService;
+
 //	@RequestMapping("/main")
 //	public String main() {
 //		log.info("@# main()");
@@ -44,25 +57,13 @@ public class BoardController {
 
 //	@RequestMapping("/main")
 //	public String list(Model model) {
-//		log.info("@# list()");
+//		log.info("@# main()");
 //
 //		ArrayList<BoardDTO> list = service.list();
 //		model.addAttribute("list", list);
 //
 //		return "main";
 //	}
-	@GetMapping("/main")
-	public String main(HttpSession session, Model model) {
-		// 세션에서 사용자 정보 가져오기 (로그인 안되어 있어도 null일 수 있음)
-		TeamDTO user = (TeamDTO) session.getAttribute("user");
-
-		// 로그인한 사용자 정보가 있다면 모델에 추가
-		if (user != null) {
-			model.addAttribute("user", user);
-		}
-
-		return "main"; // 로그인 여부와 관계없이 main 페이지로 이동
-	}
 
 	@RequestMapping("/write")
 	public String write(BoardDTO boardDTO) {
@@ -74,6 +75,26 @@ public class BoardController {
 		}
 
 		service.write(boardDTO);
+		// 여기다가 메일 보내는거 적기
+		int following_id = boardDTO.getMf_no();
+		String following_name = boardDTO.getBoardName();
+		log.info("작성자 고유 id => " + following_id);
+
+		// 알림 테이블에 데이터 넣기
+		List<Integer> follower_id_list = followService.follower_id_list(following_id);
+		for (int i = 0; i < follower_id_list.size(); i++) {
+//			log.info("반복문" + i);
+			notificationService.add_notification(following_id, follower_id_list.get(i), 1);
+		}
+
+		// 메일 보내기
+		List<String> follower_list = followService.follower_list(following_id);
+//		log.info("follower_list => " + follower_list);
+		for (int i = 0; i < follower_list.size(); i++) {
+			String follower_email = follower_list.get(i);
+			emailService.follower_list(following_name, follower_email);
+		}
+		// --------------------------------------------------------------------
 
 		return "redirect:list";
 	}
@@ -96,9 +117,30 @@ public class BoardController {
 
 		model.addAttribute("pageMaker", param);
 
-		ArrayList<CommentDTO> commentList = commentService.findAll(param);
-		model.addAttribute("commentList", commentList);
+		// 추천
+		RecommendDTO Rdto = new RecommendDTO();
+		log.info("param in boardNo => " + param.get("boardNo"));
+		log.info("param in mf_no => " + param.get("mf_no"));
 
+		int total_recommend = recommendService.total_recommend(Integer.parseInt(param.get("boardNo")));
+		int count = commentService.count(Integer.parseInt(param.get("boardNo")));
+
+		ArrayList<CommentDTO> commentList = commentService.findAll(param);
+		if (param.get("mf_no") != null) {
+			try {
+				Rdto.setBoardNo(Integer.parseInt(param.get("boardNo")));
+				Rdto.setMf_no(Integer.parseInt(param.get("mf_no")));
+				int recommend = recommendService.check_recommend(Rdto);
+				model.addAttribute("recommend", recommend);
+			} catch (Exception e) {
+				log.info("mf_no => null");
+			}
+		}
+		model.addAttribute("count", count);
+		model.addAttribute("commentList", commentList);
+		model.addAttribute("total_recommend", total_recommend);
+
+		log.info("model => " + model);
 		return "content_view";
 	}
 
@@ -127,6 +169,7 @@ public class BoardController {
 		service.delete(param);
 		uploadService.deleteFiles(fileList);
 		commentService.boardCommentDelete(param);
+		recommendService.delete_board(Integer.parseInt(param.get("boardNo")));
 
 		rttr.addAttribute("pageNum", param.get("pageNum"));
 		rttr.addAttribute("amount", param.get("amount"));

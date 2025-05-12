@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="com.boot.dto.TeamDTO" %>
+<% TeamDTO user = (TeamDTO) session.getAttribute("user"); %>
 <html>
 
 <head>
@@ -15,6 +17,7 @@
 </style>
 
 <body>
+   <%= user %>
    <table width="700" border="1">
       <tr>
          <td>번호</td>
@@ -37,7 +40,11 @@
       </c:forEach>
       <tr>
          <td colspan="5">
-            <a href="write_view">글작성</a>
+			<% if(user != null){ %>
+	            <a href="write_view">글작성</a>
+			<% }else{ %>
+	            <a href="#" id="write_a">글작성</a>
+			<% } %>
          </td>
       </tr>
    </table>
@@ -100,6 +107,18 @@
 </html>
 <script src="${pageContext.request.contextPath}/js/jquery.js"></script>
 <script>
+   // 변수
+   <% if (user != null) { %>
+      var sessionUserNo = <%= user.getMf_no() %>;
+   <% } else { %>
+      var sessionUserNo = null;
+   <% } %>
+
+	$("#write_a").on("click", function(e){
+		e.preventDefault();
+      alert("로그인 후 이용 가능한 콘텐츠 입니다.");
+	});
+	
    var actionForm = $("#actionForm");
    // 페이지번호 처리
    $(".paginate_button a").on("click", function (e) {
@@ -124,6 +143,7 @@
          actionForm.find("input[name='boardNo']").remove();
       }
       actionForm.append("<input type='hidden' name='boardNo' value='" + targetBno + "'>");
+      actionForm.append("<input type='hidden' name='mf_no' value='" + sessionUserNo + "'>");
       actionForm.attr("action","content_view").submit();
       
    }); // end of move_link click

@@ -1,5 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page import="com.boot.dto.TeamDTO" %>
+<% 
+	TeamDTO user = (TeamDTO) session.getAttribute("user");
+	request.setAttribute("user", user); 
+%>
+<%@ page import="java.util.List" %>
+<% 
+	List<Integer> user_follow_list = (List<Integer>) session.getAttribute("user_follow_list");
+	request.setAttribute("user_follow_list", user_follow_list);
+%>
+
 <html>
 
 <head>
@@ -29,8 +41,11 @@
 </head>
 
 <body>
-	<table width="500" border="1">
-		<form method="post" action="modify">
+	<%= user %><br>
+	<%= user_follow_list %><br>
+	${user.mf_no}
+	<form method="post" action="modify">
+		<table width="500" border="1">
 			<input type="hidden" name="boardNo" value="${pageMaker.boardNo}">
 			<input type="hidden" name="pageNum" value="${pageMaker.pageNum}">
 			<input type="hidden" name="amount" value="${pageMaker.amount}">
@@ -49,40 +64,83 @@
 			<tr>
 				<td>이름(닉네임이 나오게 수정하기)</td>
 				<td>
-					<%-- ${content_view.boardName} --%>
-						<input type="text" name="boardName" value="${content_view.boardName}">
+					${content_view.boardName}
+					<!-- 이부분 좀더 깔끔하게 다듬어 보기 뭔가 좋은 방법이 있을거같음 -->
+					<c:if test="${user != null}">
+						<c:set var="isFollowing" value="false"/>
+						<c:forEach var="id" items="${sessionScope.user_follow_list}">
+							<c:if test="${id == content_view.mf_no}">
+								<c:set var="isFollowing" value="true"/>
+							</c:if>
+						</c:forEach>
+						<c:choose>
+							<c:when test="${isFollowing}">
+								<button type="button" id="delete_follow_btn">팔로우 취소</button>
+							</c:when>
+							<c:otherwise>
+								<button type="button" id="follow_btn">팔로우</button>
+							</c:otherwise>
+						</c:choose>
+					</c:if>
 				</td>
 			</tr>
 			<tr>
 				<td>제목</td>
 				<td>
-					<%-- ${content_view.boardTitle} --%>
-						<input type="text" name="boardTitle" value="${content_view.boardTitle}">
+					<input type="text" name="boardTitle" value="${content_view.boardTitle}">
 				</td>
 			</tr>
 			<tr>
 				<td>내용</td>
 				<td>
-					<%-- ${content_view.boardContent} --%>
-						<input type="text" name="boardContent" value="${content_view.boardContent}">
+					<input type="text" name="boardContent" value="${content_view.boardContent}">
+				</td>
+			</tr>
+			<tr>
+				<td>유저 넘</td>
+				<td>
+					${content_view.mf_no}
+				</td>
+			</tr>
+			<tr>
+				<td>추천 수</td>
+				<td>
+					${total_recommend}
 				</td>
 			</tr>
 			<tr>
 				<td colspan="2">
-					<input type="submit" value="수정">
+					<c:if test="${content_view.mf_no == user.mf_no}">
+						<input type="submit" value="수정">
+					</c:if>
 					&nbsp;&nbsp;<input type="submit" value="목록보기" formaction="list">
-					&nbsp;&nbsp;<input type="submit" value="삭제" formaction="delete">
+					<c:if test="${content_view.mf_no == user.mf_no}">
+						&nbsp;&nbsp;<input type="submit" value="삭제" formaction="delete">
+					</c:if>
+					<!-- <% if(user != null){ %>
+						&nbsp;&nbsp;<button id="recommend" type="button">추천</button>
+					<% } %> -->
+					<c:if test="${user != null}">
+						&nbsp;&nbsp;<button id="recommend" type="button">
+							<c:choose>
+								<c:when test="${recommend != 1}">
+									추천
+								</c:when>
+								<c:otherwise>
+									추천 취소
+								</c:otherwise>
+							</c:choose>
+						</button>
+					</c:if>
 				</td>
 			</tr>
-		</form>
-	</table>
-
+		</table>
+	</form>
+<!-- 
 	Files
-	<!-- 추가 -->
 	<div class="uploadDiv">
 		<input type="file" name="uploadFile" multiple>
 	</div>
-	<!-- 출력 -->
 	<div class="bigPicture">
 		<div class="bigPic">
 
@@ -93,11 +151,11 @@
 		<ul>
 
 		</ul>
-	</div>
+	</div> -->
 
 	<!-- 댓글 출력 -->
 	<div>
-		<input type="text" id="commentWriter" placeholder="작성자">
+		<input type="text" id="commentWriter" value="${user.mf_nickname}" readonly>
 		<input type="text" id="commentContent" placeholder="내용">
 		<button onclick="commentWrite()">댓글작성</button>
 	</div>
@@ -112,7 +170,7 @@
 				<th>게시글 번호</th>
 				<th>유저 번호</th>
 			</tr>
-			<c:forEach items="${commentList}" var="comment">
+			<c:forEach items="${commentList}" var="comment" begin="0" end="4">
 				<tr>
 					<td>${comment.commentNo}</td>
 					<td>${comment.commentWriter}</td>
@@ -120,21 +178,116 @@
 					<td>${comment.commentCreatedTime}</td>
 					<td>${comment.boardNo}</td>
 					<td>${comment.userNo}</td>
-					<c:if test="${comment.userNo == sessionUserNo}">
-						<!-- <button onclick="deleteComment(${comment.commentNo})">댓글 삭제</button> -->
-					</c:if>
+					<td>
+						<c:if test="${comment.userNo == user.mf_no}">
+							<button onclick="deleteComment('${comment.commentNo}')">댓글 삭제</button>
+						</c:if>
+					</td>
 				</tr>
 			</c:forEach>
+			<tr>
+				<c:if test="${count>5}">
+					<td colspan="6">
+						<button onclick="loadMoreComments()">더보기</button>
+					</td>
+				</c:if>
+				<!-- <c:if test="${count>5}">
+					<td>
+						<button onclick="hideComments()">접기</button>
+					</td>
+				</c:if> -->
+			</tr>
 		</table>
 	</div>
 
 </body>
 <script>
-	var sessionUserNo = 1;
+	// 변수
+    <% if (user != null) { %>
+        var sessionUserNo = <%= user.getMf_no() %>;
+        var sessionUserEmail = "<%= user.getMf_email() %>";
+    <% } else { %>
+        var sessionUserNo = null;
+    <% } %>
+	var no = "${content_view.boardNo}";
+	var w_user = "${content_view.mf_no}";
+	var endNo = 5;
+	var comment_count="${count}";
+	
+	// 팔로우 버튼
+	$(document).on("click", "#follow_btn", function (e) {
+		e.preventDefault();
+
+		if (sessionUserNo == null) {
+			alert("로그인 후 이용 가능합니다.");
+			return;
+		}
+
+		$.ajax({
+			 type: "POST"
+			,data: {following_id: w_user, follower_id:sessionUserNo, follower_email:sessionUserEmail}
+			,url: "/add_follow"
+			,success: function (result) {
+				console.log("팔로우 성공");
+				$("#follow_btn").attr("id", "delete_follow_btn").text("팔로우 취소");
+			}
+			,error: function () {
+				console.log("팔로우 실패");
+			}
+		});
+	});
+	
+	// 팔로우 삭제 버튼
+	$(document).on("click", "#delete_follow_btn", function (e) {
+		e.preventDefault();
+
+		if (sessionUserNo == null) {
+			alert("로그인 후 이용 가능합니다.");
+			return;
+		}
+
+		$.ajax({
+			 type: "POST"
+			,data: {following_id: w_user, follower_id:sessionUserNo}
+			,url: "/delete_follow"
+			,success: function (result) {
+				console.log("팔로우 삭제 성공");
+				$("#delete_follow_btn").attr("id", "follow_btn").text("팔로우");
+			}
+			,error: function () {
+				console.log("팔로우 실패");
+			}
+		});
+	});
+
+	// 추천 버튼
+	$(document).on("click", "#recommend", function (e) {
+		e.preventDefault();
+
+		if (sessionUserNo == null) {
+			alert("로그인 후 이용 가능합니다.");
+			return;
+		}
+
+		$.ajax({
+			 type: "POST"
+			,data: {boardNo: no}
+			,url: "/recommend"
+			,success: function (result) {
+				console.log(result);
+				$("#recommend").text(result == "recommend" ? "추천 취소" : "추천");
+			}
+			,error: function () {
+				console.log("추천 실패");
+			}
+		});
+	});
+
+	// 댓글 작성 기능능
 	const commentWrite = () => {
+		console.log("유저 넘 => "+sessionUserNo);
 		const writer = document.getElementById("commentWriter").value;
 		const content = document.getElementById("commentContent").value;
-		const no = "${content_view.boardNo}";
 
 		$.ajax({
 			type: "post"
@@ -142,20 +295,22 @@
 				commentWriter: writer
 				, commentContent: content
 				, boardNo: no
+				, userNo: sessionUserNo
 			}
 			, url: "/comment/save"
 			, success: function (commentList) {
 				console.log("작성 성공");
 				console.log(commentList);
 
-				let output = "<table border='1'>";
+				let output = "<table id='commentsTable' border='1'>";
 				output += "<tr><th>댓글번호</th>";
 				output += "<th>작성자</th>";
 				output += "<th>내용</th>";
 				output += "<th>작성시간</th>";
 				output += "<th>게시글 번호</th>";
 				output += "<th>유저 번호</th></tr>";
-				for (let i in commentList) {
+				//for (let i in commentList) {
+				for (let i = 0; i < commentList.length && i < endNo; i++) {
 					output += "<tr>";
 					output += "<td>" + commentList[i].commentNo + "</td>";
 					output += "<td>" + commentList[i].commentWriter + "</td>";
@@ -172,10 +327,17 @@
 					}
 					output += "</tr>";
 				}
+				if (commentList.length>5 && comment_count>=endNo) {
+					output += "<tr><td colspan='6'><button onclick='loadMoreComments()'>더보기</button></td>";
+				}
+				if (commentList.length>5 && endNo>5) {
+					output += "<td><button onclick='hideComments()'>접기</button></td></tr>";
+				}
 				output += "</table>";
 				console.log("@# output=>" + output);
 
 				document.getElementById("comment-list").innerHTML = output;
+				document.getElementById("commentContent").value = "";
 			}
 			, error: function () {
 				console.log("실패");
@@ -183,6 +345,7 @@
 		});//end of ajax
 	}//end of script
 
+	// 댓글 삭제 기능
 	function deleteComment(commentNo){
 		$.ajax({
 			type: "post",
@@ -206,9 +369,10 @@
 			url: "/comment/list",
 			data: { boardNo: no },
 			success: function (commentList) {
-				let output = "<table border='1'>";
+				let output = "<table id='commentsTable' border='1'>";
 				output += "<tr><th>댓글번호</th><th>작성자</th><th>내용</th><th>작성시간</th><th>게시글 번호</th><th>유저 번호</th></tr>";
-				for (let i in commentList) {
+				//for (let i in commentList) {
+				for (let i = 0; i < commentList.length && i < endNo; i++) {
 					output += "<tr>";
 					output += "<td>" + commentList[i].commentNo + "</td>";
 					output += "<td>" + commentList[i].commentWriter + "</td>";
@@ -223,6 +387,12 @@
 					}
 					output += "</tr>";
 				}
+				if (commentList.length>5 && comment_count>=endNo) {
+					output += "<tr><td colspan='6'><button onclick='loadMoreComments()'>더보기</button></td>";
+				}
+				if (commentList.length > 5 && endNo>5) {
+					output += "<td><button onclick='hideComments()'>접기</button></td></tr>";
+				}
 				output += "</table>";
 				document.getElementById("comment-list").innerHTML = output;
 			},
@@ -231,6 +401,19 @@
 			}
 		});
 	}
+
+	// 댓글 더보기 버튼
+	function loadMoreComments() {
+		endNo += 5;
+		loadComments();
+	}
+
+	// 댓글 접기 버튼
+	function hideComments() {
+		endNo -= 5;
+		loadComments();
+	}
+
 
 </script>
 <script>

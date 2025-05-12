@@ -24,4 +24,6 @@ public interface TeamDAO {
 
 	public void nickname(@Param("mf_nickname") String mf_nickname, @Param("mf_id") String mf_id);
 
+	public TeamDTO find_user_by_no(int mf_no);
+
 }

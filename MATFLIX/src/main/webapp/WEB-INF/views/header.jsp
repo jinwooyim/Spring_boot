@@ -1,11 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 	<header class="header">
-
-		<div>
-			<img src="${pageContext.request.contextPath}/resources/image/MATFLIX.png" width="60px" alt="MATFLIX로고">
-		</div>
-
 		<div class="header_logo">
 			<h1>MATFLIX</h1>
 		</div>

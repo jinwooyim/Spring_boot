@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="com.boot.dto.TeamDTO" %>
+<% TeamDTO user = (TeamDTO) session.getAttribute("user"); %>
+<% request.setAttribute("user", user); %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,10 +51,11 @@
 <body>
 	<table width="500" border="1">
 		<form id="frm" method="post" action="write">
+			<input type="hidden" name="mf_no" value="${user.mf_no}">
 			<tr>
 				<td>이름</td>
 				<td>
-					<input type="text" name="boardName" size="50">
+					<input type="text" name="boardName" value="${user.mf_nickname}" size="50" readonly>
 				</td>
 			</tr>
 			<tr>
