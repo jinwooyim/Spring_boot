@@ -19,9 +19,9 @@ public class NotificationServiceImpl implements NotificationService {
 	private SqlSession sqlSession;
 
 	@Override
-	public void add_notification(int following_id, int follower_id, int post_id) {
+	public void add_notification(int following_id, int follower_id, int boardNo, int post_id) {
 		NotificationDAO dao = sqlSession.getMapper(NotificationDAO.class);
-		dao.add_notification(following_id, follower_id, post_id);
+		dao.add_notification(following_id, follower_id, boardNo, post_id);
 	}
 
 	@Override
@@ -29,5 +29,19 @@ public class NotificationServiceImpl implements NotificationService {
 		NotificationDAO dao = sqlSession.getMapper(NotificationDAO.class);
 		List<NotificationDTO> notification_list = dao.notification_list(follower_id);
 		return notification_list;
+	}
+
+	@Override
+	public void is_read_true(int notifications_id) {
+		NotificationDAO dao = sqlSession.getMapper(NotificationDAO.class);
+		dao.is_read_true(notifications_id);
+
+	}
+
+	@Override
+	public int notification_count(int notifications_id) {
+		NotificationDAO dao = sqlSession.getMapper(NotificationDAO.class);
+		int notification_count = dao.notification_count(notifications_id);
+		return notification_count;
 	}
 }

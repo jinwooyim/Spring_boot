@@ -31,5 +31,4 @@ public interface TeamService {
 
 	// 멤버넘버로 정보 추출
 	public TeamDTO find_user_by_no(int mf_no);
-
 }
