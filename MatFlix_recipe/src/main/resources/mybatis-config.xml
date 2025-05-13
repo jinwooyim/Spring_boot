@@ -3,11 +3,10 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-	<mappers>
-		<mapper resource="mybatis/mappers/recipe.xml"/>
-		<mapper resource="mybatis/mappers/upload.xml"/>
-		<mapper resource="mybatis/mappers/rc_board.xml"/>
-		<mapper resource="mybatis/mappers/rc_comment.xml"/>
-		<mapper resource="mybatis/mappers/rc_page.xml"/>
+	<mappers>	
+		<mapper resource="mybatis/mappers/notice_board.xml"/>
+		<mapper resource="mybatis/mappers/notice_comment.xml"/>
+		<mapper resource="mybatis/mappers/notice_upload.xml"/>
+		<mapper resource="mybatis/mappers/notice_page.xml"/>
 	</mappers>
 </configuration>

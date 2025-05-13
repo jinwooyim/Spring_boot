@@ -1,0 +1,41 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.boot.dao.NoticeBoardAttachDAO">
+    
+    <!-- 파일 첨부 등록 -->
+    <insert id="insertFile">
+        INSERT INTO notice_board_attach(
+            notice_uuid, 
+            notice_uploadPath, 
+            notice_fileName, 
+            notice_image, 
+            notice_boardNo
+        ) VALUES (
+            #{notice_uuid}, 
+            #{notice_uploadPath}, 
+            #{notice_fileName}, 
+            #{notice_image}, 
+            #{notice_boardNo}
+        )
+    </insert>
+    
+    <!-- 게시글 번호로 파일 목록 조회 -->
+    <select id="getFileList" resultType="com.boot.dto.NoticeBoardAttachDTO">
+        SELECT notice_uuid, 
+               notice_uploadPath, 
+               notice_fileName, 
+               notice_image, 
+               notice_boardNo 
+          FROM notice_board_attach 
+         WHERE notice_boardNo = #{notice_boardNo}
+    </select>
+
+    <!-- 게시글 번호로 첨부파일 삭제 -->
+    <delete id="deleteFile">
+        DELETE FROM notice_board_attach 
+         WHERE notice_boardNo = #{notice_boardNo}
+    </delete>
+        
+</mapper>

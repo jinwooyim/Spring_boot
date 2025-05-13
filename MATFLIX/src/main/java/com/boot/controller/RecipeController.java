@@ -404,8 +404,6 @@ public class RecipeController {
 		model.addAttribute("recipe_list_all", paging_recipe_list);
 		model.addAttribute("file_list_all", paging_file_list);
 		model.addAttribute("mem_list", mem_list);
-		log.info("@# mem_list =>" + mem_list);
-		log.info(mem_list.get(0).getMf_nickname());
 
 		System.out.println("cri => " + cri);
 		System.out.println("model => " + model);

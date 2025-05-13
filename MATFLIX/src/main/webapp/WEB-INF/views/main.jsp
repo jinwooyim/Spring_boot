@@ -41,6 +41,7 @@
     <%}%>
 	<!-- 게시글 -->
 	<a href="list">게시글</a>
+	<br><a href="notice_list">공지사항</a>
     <% if(user != null){ %>
         <!-- 프로필 -->
         <form id="user_profile" class="profile" action="profile" method="post">
