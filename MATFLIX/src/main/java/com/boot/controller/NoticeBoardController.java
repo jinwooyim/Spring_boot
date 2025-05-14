@@ -1,6 +1,5 @@
 package com.boot.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.boot.dto.NoticeBoardDTO;
-import com.boot.dto.NoticeCommentDTO;
 import com.boot.service.NoticeBoardService;
-import com.boot.service.NoticeCommentService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,9 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 public class NoticeBoardController {
 	@Autowired
 	private NoticeBoardService service;
-
-	@Autowired
-	private NoticeCommentService commentService;
 
 	@RequestMapping("/notice_write")
 //	public String write(@RequestParam HashMap<String, String> param) {
@@ -54,10 +48,6 @@ public class NoticeBoardController {
 		log.info("@# content_view dto: " + dto);
 //		content_view.jsp 에서 pageMaker 를 가지고 페이징 처리
 		model.addAttribute("pageMaker", param);
-
-		// 해당 게시글에 작성된 댓글 리스트를 가져옴
-		ArrayList<NoticeCommentDTO> commentList = commentService.findAll(param);
-		model.addAttribute("commentList", commentList);
 
 		return "notice_content_view";
 	}
