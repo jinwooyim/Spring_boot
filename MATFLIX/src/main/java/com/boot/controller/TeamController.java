@@ -46,6 +46,7 @@ import com.boot.service.FollowService;
 import com.boot.service.NotificationService;
 import com.boot.service.RecipeService;
 import com.boot.service.RecipeUploadService;
+import com.boot.service.RecommendService;
 import com.boot.service.TeamService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,14 +67,21 @@ public class TeamController {
 
 	@Autowired
 	private NotificationService notificationService;
+
 	@Autowired
 	private BoardService boardService;
+
 	@Autowired
 	private RecipeService recipeService;
+
 	@Autowired
 	private RecipeUploadService recipeUploadService;
+
 	@Autowired
 	private FavoriteService favoriteService;
+
+	@Autowired
+	private RecommendService recommendService;
 
 	@RequestMapping("/profile")
 	public String profile(HttpSession session, Model model) throws Exception {
@@ -85,6 +93,14 @@ public class TeamController {
 
 		TeamDTO dto = service.find_list(user.getMf_id());
 		List<Map<String, Object>> profile_board = boardService.profile_board_list(user.getMf_no());
+		log.info(profile_board + "");
+		for (int i = 0; i < profile_board.size(); i++) {
+			Map<String, Object> board = profile_board.get(i);
+			int boardNo = (int) board.get("boardNo");
+			int recommend_count = recommendService.total_recommend(boardNo);
+			board.put("recommend_count", recommend_count);
+		}
+
 		String mf_no = Integer.toString(user.getMf_no());
 		List<RecipeAttachDTO> my_recipe_attach = new ArrayList<>();
 		List<RecipeDTO> my_recipe = recipeService.get_recipe_by_user_id(mf_no);
@@ -115,12 +131,18 @@ public class TeamController {
 
 			favoritesForView.add(favoriteMap);
 		}
+		int my_recipe_count = recipeService.my_recipe_count(mfNo);
+		int user_follow_count = followService.user_follow_count(mfNo);
+		int user_follower_count = followService.user_follower_count(mfNo);
 
 		model.addAttribute("favorites", favoritesForView);
 		model.addAttribute("my_recipe", my_recipe);
 		model.addAttribute("my_recipe_attach", my_recipe_attach);
 		model.addAttribute("dto", dto);
 		model.addAttribute("profile_board", profile_board);
+		model.addAttribute("my_recipe_count", my_recipe_count);
+		model.addAttribute("user_follow_count", user_follow_count);
+		model.addAttribute("user_follower_count", user_follower_count);
 
 		return "profile";
 	}

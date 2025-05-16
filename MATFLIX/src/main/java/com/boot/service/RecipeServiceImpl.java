@@ -105,6 +105,13 @@ public class RecipeServiceImpl implements RecipeService {
 		return mf_no;
 	}
 
+	@Override
+	public int my_recipe_count(int mf_no) {
+		RecipeDAO dao = session.getMapper(RecipeDAO.class);
+		int my_recipe_count = dao.my_recipe_count(mf_no);
+		return my_recipe_count;
+	}
+
 //===========================================================================
 //	요리 별점 업데이트
 	@Override

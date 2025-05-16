@@ -24,34 +24,43 @@ body {
   padding: 20px;
 }
 
-/* 배너 슬라이더 */
+/* 배너 슬라이더 - 페이드 방식으로 변경 */
 .banner-slider-container {
   position: relative;
   margin-bottom: 40px;
   overflow: hidden;
   border-radius: 12px;
   box-shadow: var(--shadow);
-  height: 450px;
+  height: 500px;
 }
 
 .banner-slider {
-  display: flex;
-  transition: transform 0.5s ease;
+  position: relative;
   height: 100%;
-  width: 300%; /* 배너 슬라이드 3개에 맞게 너비 설정 */
+  width: 100%;
 }
 
 .banner-slide {
-  min-width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  position: relative;
-  width: 33.333%; /* 각 슬라이드는 전체 너비의 1/3 */
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 1;
+}
+
+.banner-slide.active {
+  opacity: 1;
+  z-index: 2;
 }
 
 .banner-slide img {
-  width: 1200px;
-  height: auto;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 .banner-content {
@@ -60,9 +69,9 @@ body {
   left: 0;
   right: 0;
   padding: 20px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+  background: linear-gradient(to top, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0));
   color: white;
-  border-top: 1px solid rgba(255, 255, 255, 0.2); /* 텍스트 영역 구분선 추가 */
+  z-index: 3;
 }
 
 .banner-content h3 {
@@ -84,6 +93,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 8px;
+  z-index: 10;
 }
 
 .banner-indicator {
@@ -344,7 +354,7 @@ body {
     min-width: 220px;
   }
 
-  .banner-slide {
+  .banner-slider-container {
     height: 200px;
   }
 

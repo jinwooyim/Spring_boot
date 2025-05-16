@@ -51,7 +51,6 @@
             </div>
             
             <div class="banner-indicators" id="bannerIndicators">
-                <!-- 배너 인디케이터는 JavaScript로 생성됩니다 -->
             </div>
         </div>
         
