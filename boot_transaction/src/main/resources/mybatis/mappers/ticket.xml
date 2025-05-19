@@ -4,10 +4,16 @@
 
 <mapper namespace=" com.boot.dao.TicketDAO">
     <insert id="insertCard">
-		insert into board_comment( 		
+		insert into card( 		
 			  consumerId
 			 ,amount)
 		values(#{consumerId},#{amount})
     </insert>
+    
+    <insert id="insertTicket">
+		insert into ticket( 		
+			  consumerId
+			 ,countnum)
+		values(#{consumerId},#{countnum})
+    </insert>
 </mapper>
-

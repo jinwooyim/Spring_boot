@@ -529,7 +529,7 @@
         
         <div class="card fade-in">
             <div class="card-header">
-                <h2><i class="fas fa-list-ul"></i> 게시글 목록</h2>
+                <h2 style="margin: 8px;"><i class="fas fa-list-ul"></i> 게시글 목록</h2>
                 <a href="write_view" class="btn btn-primary">
                     <i class="fas fa-pen"></i> 글작성
                 </a>

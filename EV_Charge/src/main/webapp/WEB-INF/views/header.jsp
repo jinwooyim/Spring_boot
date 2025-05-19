@@ -552,7 +552,7 @@
 
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <a href="${pageContext.request.contextPath}/main" class="ev-nav-item">
+                        <a href="${pageContext.request.contextPath}/notice_list" class="ev-nav-item">
                             <i class="fas fa-heart"></i>공지사항
                         </a>
                     </c:when>
@@ -580,7 +580,7 @@
                     </c:otherwise>
                 </c:choose>
             </nav>
-            
+            <a href="${pageContext.request.contextPath}/test">경로 지도 보기</a>
             <!-- 검색, 로그인, 프로필 섹션 -->
             <div class="ev-user-section">
                 <!-- 지역 선택 섹션 -->

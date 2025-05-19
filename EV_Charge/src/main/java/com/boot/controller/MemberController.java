@@ -26,8 +26,11 @@ public class MemberController {
 
 	// main.jsp
 	@RequestMapping("/main")
-	public String main() {
+	public String main(HttpServletRequest request) {
 		log.info("main");
+		HttpSession session = request.getSession();
+		MemberDTO dto = (MemberDTO) session.getAttribute("user");
+		log.info("@# user => " + dto);
 		return "main";
 	}
 
@@ -125,5 +128,10 @@ public class MemberController {
 		} else {
 			return "fail";
 		}
+	}
+
+	@RequestMapping("/test")
+	public String test() {
+		return "test";
 	}
 }
